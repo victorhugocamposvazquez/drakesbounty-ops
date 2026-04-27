@@ -18,6 +18,7 @@ const nav = [
     label: "· Casa ·",
     items: [
       { href: "/conversiones", icon: "◇", title: "Conversiones" },
+      { href: "/payouts", icon: "✧", title: "Payouts" },
     ],
   },
   {
@@ -32,8 +33,8 @@ const nav = [
   {
     label: "· Network ·",
     items: [
-      { href: "#", icon: "★", title: "Operadores activos", count: "47" },
-      { href: "#", icon: "§", title: "Creadores", count: "1.842" },
+      { href: "/operadores", icon: "★", title: "Operadores activos" },
+      { href: "/creadores", icon: "§", title: "Creadores" },
       { href: "#", icon: "⚖", title: "Disputas", badge: "2" },
     ],
   },

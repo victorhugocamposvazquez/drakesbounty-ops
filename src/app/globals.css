@@ -178,3 +178,11 @@ table.conversions-table th,
 table.conversions-table td {
   font-size: 12px;
 }
+
+.casa-list-intro {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  margin: 0 0 20px;
+  max-width: 72ch;
+}

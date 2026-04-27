@@ -48,6 +48,13 @@ export function ConversionsMain({
           <span className="page-label" style={{ opacity: 0.6 }}>
             Postbacks · {rows.length} mostradas
           </span>
+          <a
+            className="topbar-btn"
+            href="/api/export/conversions"
+            title="Hasta 20.000 filas. Requiere SUPABASE_SERVICE_ROLE_KEY en el servidor."
+          >
+            Exportar CSV
+          </a>
         </div>
       </div>
 
