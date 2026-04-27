@@ -38,7 +38,19 @@ const nav = [
   },
 ] as const;
 
-export function OracleSidebar() {
+function initialsFromEmail(email: string) {
+  const local = email.split("@")[0] ?? email;
+  const parts = local.replace(/[^a-z0-9]/gi, " ").trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
+  }
+  return local.slice(0, 2).toUpperCase() || "?";
+}
+
+type Props = { userEmail: string };
+
+export function OracleSidebar({ userEmail }: Props) {
+  const displayName = userEmail.split("@")[0] ?? userEmail;
   return (
     <aside className="sidebar">
       <Link href="/" className="sidebar-brand">
@@ -131,11 +143,16 @@ export function OracleSidebar() {
 
       <div className="sidebar-user">
         <div className="user-avatar" aria-hidden>
-          JP
+          {initialsFromEmail(userEmail)}
         </div>
         <div className="user-info">
-          <div className="user-name">Javier Peña</div>
-          <div className="user-role">Head · BD</div>
+          <div className="user-name" title={userEmail}>
+            {displayName}
+          </div>
+          <div className="user-role">Staff</div>
+          <a className="sidebar-signout" href="/auth/signout">
+            Cerrar sesión
+          </a>
         </div>
       </div>
     </aside>

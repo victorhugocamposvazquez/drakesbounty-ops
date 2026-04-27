@@ -14,4 +14,11 @@ npm run dev
 
 Abre [http://localhost:3000](http://localhost:3000). La ruta `/` reproduce el shell y la primera pantalla del Oráculo (HTML de referencia).
 
-**Noindex:** `metadata.robots` + `app/robots.ts` con `disallow: /` para desalentar indexación; el siguiente paso típico es autenticación de staff (mismo Supabase Auth) y RLS/allowlist según vuestro modelo.
+**Noindex:** `metadata.robots` + `app/robots.ts` con `disallow: /` para desalentar indexación.
+
+### Autenticación (Supabase Auth)
+
+- Entrada: `/login` — enlace mágico al correo (PKCE). El callback es `/auth/callback`; añade esa URL en Supabase → **Redirect URLs** usando el mismo `NEXT_PUBLIC_APP_URL` que en Vercel.
+- Salida: `GET /auth/signout` (enlace «Cerrar sesión» en el sidebar).
+- **Allowlist:** variable `OPS_STAFF_EMAILS` (emails separados por comas). Si está **vacía**, entra cualquier usuario con sesión (cómodo en local; en producción define la lista).
+- **Middleware** protege `/` y el resto de rutas salvo `/login`, `/auth/*`. Si Supabase no está en `.env`, el dashboard muestra un aviso de configuración.

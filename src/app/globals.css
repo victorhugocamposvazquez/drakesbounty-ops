@@ -1,1 +1,135 @@
 @import "./oracle-shell.css";
+
+/* ——— Login (fuera del shell) ——— */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 28px 20px;
+  border: 1px solid var(--rule-strong);
+  background: rgba(26, 19, 12, 0.04);
+  box-shadow: 0 12px 40px rgba(26, 19, 12, 0.08);
+}
+
+.login-title {
+  font-family: var(--display);
+  font-size: 22px;
+  font-style: italic;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.login-lead {
+  font-size: 13px;
+  color: var(--ink-dim);
+  line-height: 1.45;
+  margin-bottom: 20px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.login-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: var(--ui);
+  font-size: 14px;
+  border: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.03);
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--oxblood);
+  background: rgba(255, 252, 244, 0.6);
+}
+
+.login-submit {
+  margin-top: 8px;
+  padding: 10px 16px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-submit:hover:not(:disabled) {
+  background: var(--oxblood);
+  border-color: var(--oxblood);
+}
+
+.login-error {
+  color: var(--oxblood);
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0 0 4px;
+}
+
+.login-hint {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
+.login-foot {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+.login-quiet {
+  color: var(--oxblood);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.sidebar-signout {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.sidebar-signout:hover {
+  color: var(--oxblood);
+}
