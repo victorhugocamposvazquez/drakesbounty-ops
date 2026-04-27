@@ -59,6 +59,15 @@ export function ConversionsMain({
       </div>
 
       <div className="conversions-body">
+        <p className="casa-list-intro" role="note">
+          Los registros de <code>conversions</code> se generan de forma{" "}
+          <strong>automática</strong> en el stack del producto:{" "}
+          <strong>drakes-affiliate</strong> (p. ej. <code>POST /api/postback</code>{" "}
+          y el modelo idempotente <code>operator_id + external_id</code>).
+          Este panel comparte la misma base y sirve para{" "}
+          <strong>revisión, listado y export</strong> — no es el punto de
+          ingesta principal.
+        </p>
         {error ? (
           <p className="conversions-error" role="alert">
             No se pudo leer <code>conversions</code>: {error}

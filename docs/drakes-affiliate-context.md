@@ -18,8 +18,8 @@ Misma instancia Supabase; las migraciones viven solo en **drakes-affiliate** (`s
 ## 2. Arquitectura relevante para integrar (afiliado)
 
 - **Clicks (tracking):** el usuario abre un enlace con `GET /api/r?bc=<billboard_campaign_id>`. Eso escribe en `clicks` y redirige. Implementación: `drakes-affiliate/src/app/api/r/route.ts`.
-- **Postback (operador → Casa):** `POST /api/postback` con cuerpo JSON y `Authorization: Bearer <POSTBACK_SECRET>`. Idempotencia: clave lógica **`(operator_id, external_id)`** en `conversions`. Implementación: `drakes-affiliate/src/app/api/postback/route.ts`.
-- **Cualquier import CSV o job en ops** debería escribir en `conversions` (y relaciones) con **la misma semántica** que el postback: mismas columnas, mismos `external_id` estables, sin duplicar filas (unique en BD).
+- **Postback (operador → Casa):** `POST /api/postback` con cuerpo JSON y `Authorization: Bearer <POSTBACK_SECRET>`. Idempotencia: clave lógica **`(operator_id, external_id)`** en `conversions`. Implementación: `drakes-affiliate/src/app/api/postback/route.ts`. **Esa vía (y otras expuestas en el afiliado) es el ingesta principal y automática de `conversions`.** `drakes-ops` lee la misma tabla vía Supabase; no sustituye al panel de afiliación para crear postbacks.
+- **Import CSV o jobs en ops** (si los añadís) deberían escribir en `conversions` con **la misma semántica** que el postback: mismas columnas, mismos `external_id` estables, sin duplicar filas (unique en BD). Son el caso excepcional, no el flujo diario.
 
 - **Payouts (v1 en afiliado):** tabla `payout_requests` (migración `0003_payout_requests.sql`). La UI vive en el Ledger; la **operación fuerte** (validar, marcar paid) puede ser en ops más adelante.
 

@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Conversiones — Drake's Bounty · Backoffice",
-  description: "Listado de conversiones (postbacks)",
+  description:
+    "Vista y export de conversiones; la ingesta vive en drakes-affiliate (postback API)",
   robots: { index: false, follow: false, nocache: true },
 };
 
