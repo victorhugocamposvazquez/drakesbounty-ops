@@ -133,3 +133,48 @@
 .sidebar-signout:hover {
   color: var(--oxblood);
 }
+
+/* ——— Conversiones ——— */
+.conversions-body {
+  padding: 20px 24px 32px;
+  min-width: 0;
+}
+
+.conversions-error {
+  font-size: 14px;
+  color: var(--oxblood);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.conversions-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ink-dim);
+  font-weight: 400;
+}
+
+.conversions-empty {
+  font-size: 14px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.conv-cell-nowrap {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.conv-cell-mono {
+  font-family: var(--mono);
+  font-size: 11px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table.conversions-table th,
+table.conversions-table td {
+  font-size: 12px;
+}

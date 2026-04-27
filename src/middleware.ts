@@ -5,6 +5,9 @@ import { isStaffEmail } from "@/lib/auth/staff";
 const publicPaths = ["/login", "/auth/callback", "/auth/signout"];
 
 function isPublicPath(pathname: string) {
+  if (pathname === "/api/health" || pathname.startsWith("/api/health/")) {
+    return true;
+  }
   return publicPaths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 

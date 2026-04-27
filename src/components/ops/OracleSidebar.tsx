@@ -1,15 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { ProfileSnapshot } from "@/lib/data/profile";
 
 const nav = [
   {
     label: "· Inteligencia ·",
     items: [
-      { href: "/", icon: "◉", title: "El Oráculo", count: "1.247", active: true },
+      { href: "/", icon: "◉", title: "El Oráculo", count: "1.247" },
       { href: "#", icon: "◬", title: "Watchlists", count: "8" },
       { href: "#", icon: "✦", title: "Señales en vivo", badge: "3", badgeAttention: true },
       { href: "#", icon: "⚑", title: "Fuentes", count: "22" },
+    ],
+  },
+  {
+    label: "· Casa ·",
+    items: [
+      { href: "/conversiones", icon: "◇", title: "Conversiones" },
     ],
   },
   {
@@ -47,9 +55,20 @@ function initialsFromEmail(email: string) {
   return local.slice(0, 2).toUpperCase() || "?";
 }
 
-type Props = { userEmail: string };
+type Props = { userEmail: string; profile: ProfileSnapshot };
 
-export function OracleSidebar({ userEmail }: Props) {
+function roleLine(profile: ProfileSnapshot) {
+  if (profile.error) {
+    return "Rol · no accesible (RLS)";
+  }
+  if (profile.role) {
+    return `Rol · ${profile.role}`;
+  }
+  return "Sin fila en profiles";
+}
+
+export function OracleSidebar({ userEmail, profile }: Props) {
+  const pathname = usePathname();
   const displayName = userEmail.split("@")[0] ?? userEmail;
   return (
     <aside className="sidebar">
@@ -100,7 +119,7 @@ export function OracleSidebar({ userEmail }: Props) {
             <div className="nav-group-label">{group.label}</div>
             {group.items.map((item) => {
               const base = "nav-item";
-              const isActive = "active" in item && item.active;
+              const isActive = item.href !== "#" && pathname === item.href;
               const className = isActive ? `${base} active` : base;
               const inner = (
                 <>
@@ -149,7 +168,9 @@ export function OracleSidebar({ userEmail }: Props) {
           <div className="user-name" title={userEmail}>
             {displayName}
           </div>
-          <div className="user-role">Staff</div>
+          <div className="user-role" title={roleLine(profile)}>
+            {roleLine(profile)}
+          </div>
           <a className="sidebar-signout" href="/auth/signout">
             Cerrar sesión
           </a>
