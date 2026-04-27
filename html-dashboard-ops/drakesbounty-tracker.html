@@ -1,0 +1,2790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Rastreador — Drake's Bounty · Backoffice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #E8DCC0;
+  --paper-warm: #DFD1B1;
+  --paper-dark: #C9B994;
+  --paper-shadow: #A89573;
+  --ink: #1A130C;
+  --ink-soft: #2B2018;
+  --ink-dim: #4D3D2E;
+  --ink-faint: #75624C;
+  --ink-ghost: #9C8B6F;
+  --brass: #A67C2E;
+  --brass-light: #C9A961;
+  --brass-deep: #7A5920;
+  --oxblood: #762525;
+  --oxblood-deep: #4F1818;
+  --absinthe: #4A5C3A;
+  --absinthe-light: #6B8257;
+  --sea: #3d5a6b;
+  --rule: rgba(26, 19, 12, 0.22);
+  --rule-strong: rgba(26, 19, 12, 0.45);
+  --rule-dim: rgba(26, 19, 12, 0.10);
+  --display: 'Fraunces', Georgia, serif;
+  --ui: 'Work Sans', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  min-height: 100vh;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 20% 20%, #EFE4C9 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, #D6C59E 0%, transparent 60%),
+    var(--paper);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch' seed='7'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0 0.22 0 0 0 0.45 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+nav, aside, main, footer { position: relative; z-index: 3; }
+
+.app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+/* ============ SIDEBAR (backoffice) ============ */
+.sidebar {
+  border-right: 1px solid var(--rule);
+  padding: 20px 0;
+  background: rgba(26, 19, 12, 0.03);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 0 20px 18px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: inherit;
+}
+
+.sidebar-brand .seal { width: 30px; height: 30px; flex: none; }
+.sidebar-brand .wordmark {
+  font-family: var(--display);
+  font-weight: 500; font-size: 12px;
+  letter-spacing: 0.38em; text-transform: uppercase;
+  line-height: 1.1;
+}
+.sidebar-brand .wordmark em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+.sidebar-brand .tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--oxblood);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.context-switch {
+  margin: 14px 14px 8px;
+  padding: 6px;
+  background: var(--ink);
+  display: flex;
+  gap: 2px;
+}
+
+.ctx-btn {
+  flex: 1;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--paper-shadow);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  font-weight: 500;
+}
+
+.ctx-btn:hover { color: var(--paper); }
+.ctx-btn.active { background: var(--oxblood); color: var(--paper); }
+
+.sidebar-nav { padding: 16px 0 0; flex: 1; }
+.nav-group { margin-bottom: 18px; }
+.nav-group-label {
+  padding: 5px 20px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+
+/* Oracle sub-nav — nested indent */
+.nav-subgroup {
+  padding-left: 8px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 20px;
+  font-family: var(--display);
+  font-weight: 400; font-size: 13px;
+  color: var(--ink-dim);
+  text-decoration: none;
+  position: relative;
+  transition: all 0.25s var(--ease);
+  font-variation-settings: "opsz" 72;
+}
+
+.nav-item:hover { color: var(--ink); background: rgba(26, 19, 12, 0.04); }
+.nav-item.active {
+  color: var(--oxblood);
+  font-weight: 500;
+  background: rgba(118, 37, 37, 0.06);
+  font-style: italic;
+}
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--oxblood);
+}
+
+.nav-item.subitem {
+  padding-left: 38px;
+  font-size: 12px;
+}
+
+.nav-item.subitem::before { left: 20px; }
+
+.nav-item .icon {
+  width: 14px;
+  color: var(--ink-faint);
+  font-family: var(--display);
+  font-style: italic; font-size: 13px;
+  text-align: center;
+}
+.nav-item.active .icon { color: var(--oxblood); }
+
+.nav-item .count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-ghost);
+  letter-spacing: 0.08em;
+}
+
+.nav-item.active .count { color: var(--oxblood); font-weight: 500; }
+
+.nav-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 0.1em;
+  padding: 1px 5px;
+  background: var(--oxblood); color: var(--paper);
+}
+
+.nav-badge.attention {
+  background: var(--brass);
+  color: var(--ink);
+}
+
+.sidebar-user {
+  padding: 12px 20px;
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
+}
+
+.user-avatar {
+  width: 30px; height: 30px;
+  border: 1px solid var(--rule-strong);
+  background: linear-gradient(135deg, #762525, #4f1818);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-style: italic; font-weight: 500; font-size: 14px;
+  color: var(--paper);
+  flex: none;
+}
+
+.user-info { overflow: hidden; }
+.user-name { font-family: var(--display); font-weight: 500; font-size: 12px; color: var(--ink); }
+.user-role {
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 1px;
+}
+
+/* ============ MAIN ============ */
+.main { padding: 0; min-width: 0; }
+
+.topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+}
+
+.topbar-title { display: flex; align-items: baseline; gap: 14px; }
+
+.page-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--oxblood);
+  font-weight: 500;
+}
+
+.page-title-topbar {
+  font-family: var(--display);
+  font-weight: 500; font-size: 18px;
+  color: var(--ink); font-style: italic;
+}
+
+.global-search {
+  position: relative;
+  max-width: 520px;
+  width: 100%;
+  justify-self: center;
+}
+
+.global-search input {
+  width: 100%;
+  padding: 9px 14px 9px 38px;
+  background: rgba(26, 19, 12, 0.04);
+  border: 1px solid var(--rule);
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--ink);
+  transition: all 0.25s var(--ease);
+  font-variation-settings: "opsz" 72;
+}
+
+.global-search input::placeholder { color: var(--ink-ghost); font-style: italic; font-weight: 300; }
+
+.global-search input:focus {
+  outline: none;
+  border-color: var(--oxblood);
+  background: rgba(255, 252, 244, 0.6);
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: var(--ink-faint);
+}
+
+.search-kbd {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  padding: 2px 5px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+.topbar-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 7px 12px;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  display: inline-flex; align-items: center; gap: 7px;
+  font-weight: 500;
+}
+
+.topbar-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.topbar-btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.topbar-btn.primary:hover { background: var(--oxblood); border-color: var(--oxblood); }
+
+/* Scanning indicator */
+.oracle-scanning {
+  position: relative;
+  padding: 8px 24px;
+  background: rgba(118, 37, 37, 0.04);
+  border-bottom: 1px solid rgba(118, 37, 37, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+  font-weight: 500;
+  overflow: hidden;
+}
+
+.oracle-scanning::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, var(--oxblood) 50%, transparent);
+  animation: scanSweep 2.5s linear infinite;
+}
+
+@keyframes scanSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.scanning-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--oxblood);
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(1.4); }
+}
+
+.scanning-meta {
+  margin-left: auto;
+  color: var(--ink-dim);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  font-style: italic;
+  font-family: var(--display);
+  font-size: 12px;
+}
+
+.scanning-meta strong { color: var(--ink); font-weight: 500; font-style: normal; }
+
+/* ============ HERO ============ */
+.rastreador-hero {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.015);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 28px;
+  align-items: center;
+}
+
+.rastreador-insignia {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rastreador-icon-wrap {
+  width: 56px; height: 56px;
+  flex: none;
+  position: relative;
+}
+
+.rastreador-icon-wrap svg { width: 100%; height: 100%; }
+
+.rastreador-insignia-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rastreador-name {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 28px;
+  color: var(--ink);
+  line-height: 1;
+  font-variation-settings: "opsz" 144, "SOFT" 25;
+  letter-spacing: -0.015em;
+}
+
+.rastreador-name em { font-style: italic; color: var(--oxblood); }
+
+.rastreador-sub {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 4px;
+}
+
+.rastreador-sub strong { color: var(--oxblood); font-weight: 500; }
+
+.rastreador-sub .divider {
+  margin: 0 6px;
+  color: var(--ink-ghost);
+}
+
+/* Attention banner */
+.attention-bar {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 16px;
+  background: rgba(166, 124, 46, 0.08);
+  border: 1px solid var(--brass);
+  justify-content: space-between;
+  max-width: 620px;
+  width: 100%;
+}
+
+.attention-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.attention-icon {
+  width: 22px; height: 22px;
+  flex: none;
+  color: var(--brass-deep);
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--brass-deep);
+  border-radius: 50%;
+}
+
+.attention-text {
+  font-family: var(--display);
+  font-style: italic; font-weight: 300;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.3;
+  font-variation-settings: "opsz" 72;
+}
+
+.attention-text strong { font-weight: 500; font-style: normal; }
+.attention-text em { color: var(--oxblood); }
+
+.attention-btn {
+  padding: 7px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  white-space: nowrap;
+}
+
+.attention-btn:hover { background: var(--brass-deep); border-color: var(--brass-deep); }
+
+/* Stats by tier */
+.rastreador-stats {
+  display: flex;
+  gap: 0;
+  border-left: 1px solid var(--rule-dim);
+  padding-left: 24px;
+}
+
+.stat-tier {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0 14px;
+  border-right: 1px solid var(--rule-dim);
+  min-width: 72px;
+}
+
+.stat-tier:last-child { border-right: none; padding-right: 0; }
+.stat-tier:first-child { padding-left: 0; }
+
+.stat-tier-val {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--ink);
+  line-height: 1;
+  font-variation-settings: "opsz" 72;
+  display: flex; align-items: baseline; gap: 3px;
+}
+
+.stat-tier-val em { font-style: italic; color: var(--oxblood); }
+
+.stat-tier-lbl {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stat-tier-lbl::before {
+  content: "";
+  width: 6px; height: 6px;
+  flex: none;
+}
+
+.stat-tier.vanguard .stat-tier-lbl { color: var(--oxblood); }
+.stat-tier.vanguard .stat-tier-lbl::before { background: var(--oxblood); border-radius: 50%; }
+
+.stat-tier.riders .stat-tier-lbl { color: var(--brass-deep); }
+.stat-tier.riders .stat-tier-lbl::before { background: var(--brass); border-radius: 50%; }
+
+.stat-tier.scouts .stat-tier-lbl { color: var(--absinthe); }
+.stat-tier.scouts .stat-tier-lbl::before { background: var(--absinthe); border-radius: 50%; }
+
+.stat-tier.drifters .stat-tier-lbl::before { background: var(--ink-ghost); border-radius: 50%; }
+
+.stat-tier.flagged .stat-tier-lbl { color: var(--brass-deep); }
+.stat-tier.flagged .stat-tier-lbl::before { background: var(--brass); }
+
+/* ============ FILTER BAR ============ */
+.filter-bar {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.025);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.filter-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  font-weight: 500;
+}
+
+.filter-chip:hover { border-color: var(--ink); color: var(--ink); }
+
+.filter-chip .caret {
+  font-family: var(--display);
+  font-size: 9px;
+  color: var(--ink-faint);
+  font-style: normal;
+}
+
+.filter-chip.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.filter-chip.active .caret { color: var(--paper-shadow); }
+
+.filter-chip .chip-val {
+  color: var(--oxblood);
+  font-weight: 600;
+}
+
+.filter-chip.active .chip-val {
+  color: var(--brass-light);
+}
+
+.filter-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--rule);
+}
+
+.filter-clear {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.filter-clear:hover { text-decoration: underline; }
+
+/* Tier tab bar */
+.tier-tabs {
+  display: flex;
+  gap: 0;
+  border-right: 1px solid var(--rule);
+  padding-right: 12px;
+}
+
+.tier-tab {
+  padding: 6px 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.tier-tab:hover { color: var(--ink); }
+
+.tier-tab.active {
+  color: var(--oxblood);
+  font-weight: 600;
+}
+
+.tier-tab.active::after {
+  content: "";
+  position: absolute;
+  bottom: -13px;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--oxblood);
+}
+
+.tier-tab .count-mini {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+  padding: 1px 5px;
+  background: rgba(26, 19, 12, 0.05);
+  font-weight: 500;
+}
+
+.tier-tab.active .count-mini { background: var(--oxblood); color: var(--paper); }
+
+/* View switcher */
+.view-switcher {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--rule-strong);
+}
+
+.view-btn {
+  padding: 6px 11px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--rule);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.view-btn:last-child { border-right: none; }
+.view-btn:hover { background: rgba(26, 19, 12, 0.04); color: var(--ink); }
+.view-btn.active { background: var(--ink); color: var(--paper); }
+
+.count-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-right: 8px;
+}
+
+.count-badge strong { color: var(--ink); font-weight: 500; font-size: 12px; }
+
+/* ============ TABLE ============ */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.creators-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.creators-table thead {
+  background: rgba(26, 19, 12, 0.04);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.creators-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--rule-strong);
+  position: sticky;
+  top: 0;
+  background: rgba(245, 235, 215, 0.95);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+
+.creators-table th .sort-ico {
+  opacity: 0.4;
+  margin-left: 4px;
+  font-size: 8px;
+}
+
+.creators-table th.sorted .sort-ico { opacity: 1; color: var(--oxblood); }
+
+.creators-table tbody tr {
+  border-bottom: 1px solid var(--rule-dim);
+  transition: background 0.15s var(--ease);
+  cursor: pointer;
+}
+
+.creators-table tbody tr:hover { background: rgba(26, 19, 12, 0.03); }
+
+.creators-table tbody tr.attention-row {
+  background: rgba(166, 124, 46, 0.04);
+}
+
+.creators-table tbody tr.attention-row:hover { background: rgba(166, 124, 46, 0.07); }
+
+.creators-table tbody tr.vanguard-row {
+  background: rgba(118, 37, 37, 0.03);
+}
+
+.creators-table tbody tr.vanguard-row:hover { background: rgba(118, 37, 37, 0.06); }
+
+.creators-table td {
+  padding: 12px 12px;
+  vertical-align: middle;
+  color: var(--ink);
+}
+
+/* Creator identity cell */
+.creator-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 230px;
+}
+
+.creator-avatar {
+  width: 36px; height: 36px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  flex: none;
+  overflow: hidden;
+  font-style: italic;
+}
+
+.avatar-slots { background: linear-gradient(135deg, #1a0b2e, #7a1a5e); color: #ff006e; }
+.avatar-trading { background: linear-gradient(135deg, #0f172a, #1e293b); color: #00ffff; }
+.avatar-crypto { background: linear-gradient(135deg, #f7a600, #333); color: #fff; }
+.avatar-sports { background: linear-gradient(135deg, #4a5c3a, #2f3e25); color: var(--paper); }
+.avatar-poker { background: linear-gradient(135deg, #762525, #4f1818); color: var(--paper); }
+.avatar-prop { background: linear-gradient(135deg, #c9a961, #7a5920); color: var(--ink); }
+.avatar-mixed { background: linear-gradient(135deg, #5741d9, #2d1a4a); color: #fff; }
+.avatar-latam { background: linear-gradient(135deg, #d4490a, #762525); color: #fff; }
+
+.creator-body { min-width: 0; }
+
+.creator-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.1;
+  font-variation-settings: "opsz" 72;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.creator-name .new-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--brass);
+  flex: none;
+}
+
+.creator-handle {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 3px;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.creator-geo {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.creator-geo .flag { font-size: 11px; }
+
+/* Platform icons row */
+.platforms-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-width: 110px;
+}
+
+.platform-icon {
+  width: 22px; height: 22px;
+  border: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  flex: none;
+  position: relative;
+}
+
+.platform-icon.primary {
+  border-color: var(--oxblood);
+  border-width: 1.5px;
+}
+
+.platform-icon.primary::after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--oxblood);
+}
+
+.platform-icon.yt { background: #ff0000; color: #fff; }
+.platform-icon.tt { background: #000; color: #fff; }
+.platform-icon.tw { background: #1d9bf0; color: #fff; }
+.platform-icon.twitch { background: #9146ff; color: #fff; }
+.platform-icon.kick { background: #53fc18; color: #000; }
+.platform-icon.tg { background: #229ed9; color: #fff; }
+.platform-icon.dc { background: #5865f2; color: #fff; }
+.platform-icon.ig { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); color: #fff; font-size: 12px; }
+
+/* Followers */
+.followers-cell {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  min-width: 100px;
+}
+
+.followers-cell em { font-style: italic; color: var(--oxblood); }
+
+.followers-delta {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.followers-delta.up { color: var(--absinthe); }
+.followers-delta.down { color: var(--oxblood); }
+.followers-delta.flat { color: var(--ink-faint); }
+
+/* Engagement */
+.engagement-cell {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  min-width: 80px;
+}
+
+.engagement-val {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+
+.engagement-val em { font-style: italic; color: var(--oxblood); }
+
+.engagement-bench {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  margin-top: 2px;
+}
+
+.engagement-bench.above { color: var(--absinthe); }
+.engagement-bench.below { color: var(--oxblood); }
+
+/* Vertical tag */
+.vertical-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.vertical-tag.slots { color: var(--oxblood); border-color: var(--oxblood); background: rgba(118, 37, 37, 0.04); }
+.vertical-tag.sports { color: var(--absinthe); border-color: var(--absinthe-light); background: rgba(74, 92, 58, 0.05); }
+.vertical-tag.trading { color: var(--sea); border-color: rgba(61, 90, 107, 0.5); background: rgba(61, 90, 107, 0.05); }
+.vertical-tag.prop { color: var(--brass-deep); border-color: var(--brass); background: rgba(166, 124, 46, 0.05); }
+.vertical-tag.crypto { color: #5741d9; border-color: rgba(87, 65, 217, 0.5); background: rgba(87, 65, 217, 0.04); }
+.vertical-tag.poker { color: var(--absinthe); border-color: var(--absinthe-light); background: rgba(74, 92, 58, 0.05); }
+.vertical-tag.mixed { color: var(--ink-dim); border-color: var(--rule-strong); background: rgba(26, 19, 12, 0.04); }
+
+.vertical-cell {
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.vertical-secondary {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+/* Score block */
+.score-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 140px;
+}
+
+.score-ring {
+  width: 38px; height: 38px;
+  flex: none;
+  position: relative;
+}
+
+.score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+.score-ring .bg { fill: none; stroke: rgba(26, 19, 12, 0.1); stroke-width: 3; }
+.score-ring .fg { fill: none; stroke-width: 3; stroke-linecap: round; }
+
+.score-ring.high .fg { stroke: var(--oxblood); }
+.score-ring.mid .fg { stroke: var(--brass); }
+.score-ring.low .fg { stroke: var(--ink-ghost); }
+
+.score-ring-val {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+
+.score-minibars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.minibar-row {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 5px;
+  align-items: center;
+}
+
+.minibar-lbl {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.minibar {
+  height: 3px;
+  background: rgba(26, 19, 12, 0.08);
+}
+
+.minibar-fill {
+  height: 100%;
+}
+
+.minibar-fill.r { background: var(--oxblood); }
+.minibar-fill.q { background: var(--ink-dim); }
+.minibar-fill.f { background: var(--brass); }
+.minibar-fill.m { background: var(--absinthe); }
+.minibar-fill.x { background: var(--oxblood-deep); }
+
+/* Tier chip */
+.tier-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border: 1px solid;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tier-chip::before {
+  content: "";
+  width: 5px; height: 5px;
+  background: currentColor;
+}
+
+.tier-chip.vanguard {
+  color: var(--paper);
+  border-color: var(--oxblood);
+  background: var(--oxblood);
+}
+.tier-chip.vanguard::before { background: var(--brass-light); }
+
+.tier-chip.riders {
+  color: var(--brass-deep);
+  border-color: var(--brass);
+  background: rgba(166, 124, 46, 0.08);
+}
+
+.tier-chip.scouts {
+  color: var(--absinthe);
+  border-color: var(--absinthe-light);
+  background: rgba(74, 92, 58, 0.06);
+}
+
+.tier-chip.drifters {
+  color: var(--ink-faint);
+  border-color: var(--rule-strong);
+  background: transparent;
+}
+
+.tier-chip.flagged {
+  color: var(--brass-deep);
+  border-color: var(--brass-deep);
+  background: rgba(166, 124, 46, 0.12);
+  font-weight: 700;
+}
+
+/* Promoted brands */
+.brands-cell {
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.brands-primary {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brands-primary em { font-style: italic; color: var(--oxblood); }
+
+.brand-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--absinthe);
+  flex: none;
+}
+
+.brand-dot.competitor { background: var(--oxblood); }
+.brand-dot.outside { background: var(--brass); }
+.brand-dot.none { background: var(--ink-ghost); }
+
+.brands-secondary {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.brands-cell.none .brands-primary {
+  color: var(--ink-faint);
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* Action recommendation */
+.action-rec {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.action-rec.contact-now {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.action-rec.contact-std {
+  color: var(--ink);
+  background: transparent;
+  border-color: var(--ink);
+}
+
+.action-rec.monitor {
+  color: var(--ink-dim);
+  background: transparent;
+  border-color: var(--rule-strong);
+  border-style: dashed;
+}
+
+.action-rec.review {
+  color: var(--brass-deep);
+  background: rgba(166, 124, 46, 0.08);
+  border-color: var(--brass-deep);
+}
+
+.action-rec.reject {
+  color: var(--ink-faint);
+  background: transparent;
+  border-color: var(--rule);
+  text-decoration: line-through;
+}
+
+.action-rec.re-engage {
+  color: var(--oxblood);
+  background: transparent;
+  border-color: var(--oxblood);
+  border-style: dashed;
+}
+
+/* Owner */
+.owner-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.owner-avatar {
+  width: 24px; height: 24px;
+  border: 1px solid var(--rule-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 11px;
+  flex: none;
+  font-style: italic;
+}
+
+.owner-avatar.cr { background: linear-gradient(135deg, #6b8257, #4a5c3a); color: var(--paper); }
+.owner-avatar.lm { background: linear-gradient(135deg, #d4be91, #a67c2e); color: var(--ink); }
+.owner-avatar.no { background: transparent; border-style: dashed; color: var(--ink-ghost); font-weight: 400; }
+
+.owner-name {
+  font-family: var(--display);
+  font-size: 13px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+
+.owner-name.unassigned { color: var(--ink-ghost); font-style: italic; font-weight: 300; }
+
+/* Activity */
+.activity-cell {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.activity-cell.stale { color: var(--ink-faint); }
+.activity-cell.fresh { color: var(--oxblood); font-weight: 500; }
+
+/* Row actions */
+.row-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+  justify-content: flex-end;
+  min-width: 90px;
+}
+
+.creators-table tbody tr:hover .row-actions { opacity: 1; }
+
+.row-actions .icon-btn {
+  width: 26px; height: 26px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-size: 12px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.row-actions .icon-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.row-actions .icon-btn.star { color: var(--brass); }
+.row-actions .icon-btn.star.active { background: var(--brass); color: var(--paper); border-color: var(--brass); }
+
+/* Footer */
+.table-footer {
+  padding: 12px 24px;
+  border-top: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.025);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.footer-left { display: flex; gap: 16px; align-items: center; }
+
+.bulk-action {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.bulk-btn {
+  padding: 5px 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.25s var(--ease);
+}
+
+.bulk-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.bulk-btn.primary { background: var(--oxblood); color: var(--paper); border-color: var(--oxblood); }
+.bulk-btn.primary:hover { background: var(--oxblood-deep); border-color: var(--oxblood-deep); }
+
+.page-nav { display: flex; gap: 6px; align-items: center; }
+
+.page-btn {
+  padding: 5px 9px;
+  font-family: var(--mono);
+  font-size: 10px;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+}
+
+.page-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.page-btn:hover:not(.active) { background: rgba(26, 19, 12, 0.05); color: var(--ink); }
+.page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1200px) {
+  .rastreador-hero { grid-template-columns: 1fr; gap: 16px; }
+  .rastreador-stats { border-left: none; padding-left: 0; border-top: 1px solid var(--rule-dim); padding-top: 16px; flex-wrap: wrap; }
+  .attention-bar { max-width: none; }
+}
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static; height: auto;
+    flex-direction: row;
+    padding: 10px 20px;
+    border-right: none; border-bottom: 1px solid var(--rule);
+    overflow-x: auto;
+  }
+  .sidebar-brand, .sidebar-user, .context-switch { border-right: 1px solid var(--rule); padding-right: 16px; margin-right: 8px; border-bottom: none; margin-top: 0; margin-bottom: 0; }
+  .sidebar-nav { display: none; }
+  .topbar { grid-template-columns: 1fr; gap: 12px; }
+  .global-search { max-width: none; }
+  .filter-bar { padding: 12px 16px; }
+  .rastreador-hero { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <a href="#" class="sidebar-brand">
+      <svg class="seal" viewBox="0 0 46 46">
+        <circle cx="23" cy="23" r="18" fill="none" stroke="#1A130C" stroke-width="1.2"/>
+        <path d="M13 22 Q13 18 15.5 17 L30.5 17 Q33 18 33 22 L33 22.5 L13 22.5 Z" fill="#1A130C"/>
+        <rect x="11" y="22.3" width="24" height="1.7" fill="#1A130C"/>
+        <rect x="13.5" y="19.8" width="19" height="0.8" fill="#A67C2E"/>
+        <path d="M19 29.5 Q21 30.5 23 30.5 Q25 30.5 27 29.5" stroke="#1A130C" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="wordmark">Drake<em>'s</em></div>
+        <div class="tag">· Backoffice ·</div>
+      </div>
+    </a>
+
+    <div class="context-switch">
+      <button class="ctx-btn">Creador</button>
+      <button class="ctx-btn active">Interno</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">· Inteligencia ·</div>
+        <a href="drakesbounty-oracle.html" class="nav-item">
+          <span class="icon">◉</span>
+          El Oráculo
+          <span class="count">1.247</span>
+        </a>
+        <div class="nav-subgroup">
+          <a href="drakesbounty-oracle.html" class="nav-item subitem">
+            <span class="icon">·</span>
+            Operadores
+            <span class="count">1.247</span>
+          </a>
+          <a href="#" class="nav-item subitem active">
+            <span class="icon">·</span>
+            Creadores
+            <span class="count">3.842</span>
+          </a>
+        </div>
+        <a href="#" class="nav-item">
+          <span class="icon">◬</span>
+          Watchlists
+          <span class="count">14</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">✦</span>
+          Señales en vivo
+          <span class="nav-badge attention">7</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚑</span>
+          Fuentes
+          <span class="count">22</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Comercial ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">⚔</span>
+          Pipeline
+          <span class="count">84</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">✉</span>
+          Outreach cola
+          <span class="count">156</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">◈</span>
+          Negociaciones
+          <span class="count">11</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚖</span>
+          Contratos
+          <span class="count">36</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Network ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">★</span>
+          Operadores activos
+          <span class="count">47</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">§</span>
+          Creadores firmados
+          <span class="count">1.842</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚖</span>
+          Disputas
+          <span class="nav-badge">2</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Interno ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">⚙</span>
+          Ajustes del Rastreador
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">◌</span>
+          Equipo
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">CR</div>
+      <div class="user-info">
+        <div class="user-name">Carla Reyes</div>
+        <div class="user-role">Creator Success</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-title">
+        <span class="page-label">Folio XIII · Interno</span>
+        <span class="page-title-topbar">El Rastreador · Creadores</span>
+      </div>
+
+      <div class="global-search">
+        <svg class="search-icon" viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/>
+          <line x1="11" y1="11" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <input type="text" placeholder="Busca creadores, handles, canales, operadores promovidos..." />
+        <span class="search-kbd">⌘ K</span>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="topbar-btn">+ Nueva fuente</button>
+        <button class="topbar-btn primary">+ Registrar creador</button>
+      </div>
+    </div>
+
+    <!-- Scanning indicator -->
+    <div class="oracle-scanning">
+      <span class="scanning-dot"></span>
+      <span>Rastreador vigilando · 22 fuentes activas · 8 plataformas</span>
+      <span class="scanning-meta">Última cosecha · hace <strong>3 min</strong> · 14 creadores nuevos</span>
+    </div>
+
+    <!-- Hero -->
+    <div class="rastreador-hero">
+      <div class="rastreador-insignia">
+        <div class="rastreador-icon-wrap">
+          <svg viewBox="0 0 56 56">
+            <defs>
+              <radialGradient id="trackerEye" cx="50%" cy="50%">
+                <stop offset="0%" stop-color="#E8DCC0"/>
+                <stop offset="40%" stop-color="#762525"/>
+                <stop offset="100%" stop-color="#1A130C"/>
+              </radialGradient>
+            </defs>
+            <!-- Outer compass ring -->
+            <circle cx="28" cy="28" r="25" fill="none" stroke="#1A130C" stroke-width="1"/>
+            <circle cx="28" cy="28" r="21" fill="none" stroke="#1A130C" stroke-width="0.5" opacity="0.4"/>
+            <!-- Compass cardinal marks -->
+            <g stroke="#762525" stroke-width="0.8">
+              <line x1="28" y1="3" x2="28" y2="8"/>
+              <line x1="28" y1="48" x2="28" y2="53"/>
+              <line x1="3" y1="28" x2="8" y2="28"/>
+              <line x1="48" y1="28" x2="53" y2="28"/>
+            </g>
+            <!-- Secondary marks -->
+            <g stroke="#762525" stroke-width="0.5" opacity="0.5">
+              <line x1="11" y1="11" x2="14" y2="14"/>
+              <line x1="42" y1="42" x2="45" y2="45"/>
+              <line x1="45" y1="11" x2="42" y2="14"/>
+              <line x1="11" y1="45" x2="14" y2="42"/>
+            </g>
+            <!-- Arrow pointing NE (tracking) -->
+            <path d="M 28 28 L 42 14" stroke="#762525" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M 38 14 L 42 14 L 42 18 Z" fill="#762525"/>
+            <!-- Tail -->
+            <path d="M 28 28 L 19 37" stroke="#762525" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+            <!-- Center eye -->
+            <circle cx="28" cy="28" r="5" fill="url(#trackerEye)" stroke="#4F1818" stroke-width="0.8"/>
+            <circle cx="28" cy="28" r="2" fill="#1A130C"/>
+            <circle cx="29" cy="27" r="0.7" fill="#E8DCC0"/>
+            <!-- Scan arc -->
+            <path d="M 16 16 A 17 17 0 0 1 40 16" stroke="#A67C2E" stroke-width="1" fill="none" opacity="0.6" stroke-dasharray="2 2"/>
+          </svg>
+        </div>
+        <div class="rastreador-insignia-text">
+          <div class="rastreador-name">El <em>Rastreador</em></div>
+          <div class="rastreador-sub">
+            Creator Oracle <span class="divider">·</span> <strong>3.842</strong> vigilados <span class="divider">·</span> <strong>47</strong> nuevos esta semana
+          </div>
+        </div>
+      </div>
+
+      <div class="attention-bar">
+        <div class="attention-left">
+          <div class="attention-icon">!</div>
+          <div class="attention-text">
+            <strong>18 creadores</strong> necesitan tu ojo — <em>6 Vanguards sin contactar</em>, 5 flagged por posible fraude, 4 re-engage, 3 duplicados.
+          </div>
+        </div>
+        <button class="attention-btn">Revisar →</button>
+      </div>
+
+      <div class="rastreador-stats">
+        <div class="stat-tier vanguard">
+          <div class="stat-tier-val">62</div>
+          <div class="stat-tier-lbl">Vanguard</div>
+        </div>
+        <div class="stat-tier riders">
+          <div class="stat-tier-val">412</div>
+          <div class="stat-tier-lbl">Riders</div>
+        </div>
+        <div class="stat-tier scouts">
+          <div class="stat-tier-val">1<em>.284</em></div>
+          <div class="stat-tier-lbl">Scouts</div>
+        </div>
+        <div class="stat-tier drifters">
+          <div class="stat-tier-val">2<em>.016</em></div>
+          <div class="stat-tier-lbl">Drifters</div>
+        </div>
+        <div class="stat-tier flagged">
+          <div class="stat-tier-val">68</div>
+          <div class="stat-tier-lbl">Flagged</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter bar with tier tabs -->
+    <div class="filter-bar">
+      <div class="filter-left">
+        <div class="tier-tabs">
+          <button class="tier-tab active">Todos <span class="count-mini">3.842</span></button>
+          <button class="tier-tab">Vanguard <span class="count-mini">62</span></button>
+          <button class="tier-tab">Riders <span class="count-mini">412</span></button>
+          <button class="tier-tab">Scouts <span class="count-mini">1.284</span></button>
+          <button class="tier-tab">Drifters <span class="count-mini">2.016</span></button>
+          <button class="tier-tab">Flagged <span class="count-mini">68</span></button>
+        </div>
+
+        <span class="filter-separator"></span>
+
+        <button class="filter-chip active">
+          Vertical <span class="chip-val">Slots, Trading +1</span>
+          <span class="caret">▾</span>
+        </button>
+        <button class="filter-chip">
+          Plataforma <span class="caret">▾</span>
+        </button>
+        <button class="filter-chip active">
+          Geografía <span class="chip-val">ES, LATAM</span>
+          <span class="caret">▾</span>
+        </button>
+        <button class="filter-chip">
+          Audiencia <span class="caret">▾</span>
+        </button>
+        <button class="filter-chip">
+          Ya monetiza <span class="caret">▾</span>
+        </button>
+        <button class="filter-chip">
+          Acción sugerida <span class="caret">▾</span>
+        </button>
+        <button class="filter-chip">
+          + Más <span class="caret">▾</span>
+        </button>
+
+        <button class="filter-clear">Limpiar</button>
+      </div>
+
+      <div class="filter-right">
+        <button class="topbar-btn">☆ Guardar vista</button>
+        <div class="view-switcher">
+          <button class="view-btn active">☰ Tabla</button>
+          <button class="view-btn">▦ Kanban</button>
+          <button class="view-btn">⌖ Mapa</button>
+          <button class="view-btn">◷ Feed</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Creators table -->
+    <div class="table-wrap">
+      <table class="creators-table">
+        <thead>
+          <tr>
+            <th>Creador <span class="sort-ico">↕</span></th>
+            <th>Plataformas</th>
+            <th>Audiencia</th>
+            <th>Engagement</th>
+            <th>Vertical</th>
+            <th>Score <span class="sort-ico">↓</span></th>
+            <th>Tier</th>
+            <th>Promueve a</th>
+            <th>Acción IA</th>
+            <th>Owner</th>
+            <th>Señal</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- ROW 1: VANGUARD - Spanish slots streamer, untapped -->
+          <tr class="vanguard-row attention-row">
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-slots">NS</div>
+                <div class="creator-body">
+                  <div class="creator-name">
+                    nachoslots
+                    <span class="new-dot" title="Vanguard nuevo"></span>
+                  </div>
+                  <div class="creator-handle">@nachoslots</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇪🇸</span> ES · español
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon twitch primary" title="Twitch · primary">T</div>
+                <div class="platform-icon kick" title="Kick">K</div>
+                <div class="platform-icon yt" title="YouTube">▶</div>
+                <div class="platform-icon tw" title="X">𝕏</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>142<em>K</em></div>
+                <div class="followers-delta up">▲ 12% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">11<em>,2%</em></div>
+                <div class="engagement-bench above">▲ bench 6,4%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag slots">Slots</span>
+                <span class="vertical-secondary">Live stream</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring high">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="9"/>
+                  </svg>
+                  <div class="score-ring-val">90</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 86%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 92%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 98%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 75%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip vanguard">Vanguard</span></td>
+            <td>
+              <div class="brands-cell">
+                <div class="brands-primary">
+                  <span class="brand-dot outside"></span>
+                  <em>NovaSpin</em>
+                </div>
+                <div class="brands-secondary">+ 2 deals detectados</div>
+              </div>
+            </td>
+            <td><span class="action-rec contact-now">✦ Contact now · premium</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar no">?</div>
+                <span class="owner-name unassigned">sin asignar</span>
+              </div>
+            </td>
+            <td><div class="activity-cell fresh">hace 4h</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star" title="Watchlist">☆</button>
+                <button class="icon-btn" title="Asignarme">↴</button>
+                <button class="icon-btn" title="Abrir">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 2: VANGUARD - Trading educator -->
+          <tr class="vanguard-row">
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-trading">MF</div>
+                <div class="creator-body">
+                  <div class="creator-name">Matheus FX</div>
+                  <div class="creator-handle">@matheusfx_br</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇧🇷</span> BR · português
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon yt primary" title="YouTube">▶</div>
+                <div class="platform-icon tg" title="Telegram">T</div>
+                <div class="platform-icon ig" title="Instagram">◉</div>
+                <div class="platform-icon tw" title="X">𝕏</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>384<em>K</em></div>
+                <div class="followers-delta up">▲ 8% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">7<em>,8%</em></div>
+                <div class="engagement-bench above">▲ bench 4,1%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag trading">Trading · Forex</span>
+                <span class="vertical-secondary">+ Prop firms</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring high">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="12"/>
+                  </svg>
+                  <div class="score-ring-val">87</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 94%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 82%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 88%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 90%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip vanguard">Vanguard</span></td>
+            <td>
+              <div class="brands-cell">
+                <div class="brands-primary">
+                  <span class="brand-dot competitor"></span>
+                  FTMO
+                </div>
+                <div class="brands-secondary">+ 3 props competidores</div>
+              </div>
+            </td>
+            <td><span class="action-rec contact-now">✦ Contact now · premium</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar cr">CR</div>
+                <span class="owner-name">Carla R.</span>
+              </div>
+            </td>
+            <td><div class="activity-cell fresh">ayer</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star active">★</button>
+                <button class="icon-btn" title="Contactar">✉</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 3: RIDER - TikTok crypto -->
+          <tr>
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-crypto">LK</div>
+                <div class="creator-body">
+                  <div class="creator-name">luiskicksbtc</div>
+                  <div class="creator-handle">@luiskicksbtc</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇲🇽</span> MX · español
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon tt primary">♪</div>
+                <div class="platform-icon ig">◉</div>
+                <div class="platform-icon tw">𝕏</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>218<em>K</em></div>
+                <div class="followers-delta up">▲ 24% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">5<em>,4%</em></div>
+                <div class="engagement-bench above">▲ bench 3,2%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag crypto">Crypto</span>
+                <span class="vertical-secondary">Exchanges + DeFi</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring high">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="22"/>
+                  </svg>
+                  <div class="score-ring-val">77</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 78%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 68%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 85%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 72%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip riders">Rider</span></td>
+            <td>
+              <div class="brands-cell">
+                <div class="brands-primary">
+                  <span class="brand-dot competitor"></span>
+                  Bybit
+                </div>
+                <div class="brands-secondary">+ Binance referral</div>
+              </div>
+            </td>
+            <td><span class="action-rec contact-std">✉ Contact standard</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar cr">CR</div>
+                <span class="owner-name">Carla R.</span>
+              </div>
+            </td>
+            <td><div class="activity-cell">hace 2 días</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star">☆</button>
+                <button class="icon-btn">✉</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 4: RIDER - Telegram tipster -->
+          <tr>
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-sports">EA</div>
+                <div class="creator-body">
+                  <div class="creator-name">ElTipsterOficial</div>
+                  <div class="creator-handle">@eltipster_oficial</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇦🇷</span> AR · español
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon tg primary">T</div>
+                <div class="platform-icon ig">◉</div>
+                <div class="platform-icon yt">▶</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>48<em>K</em></div>
+                <div class="followers-delta up">▲ 18% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">14<em>,8%</em></div>
+                <div class="engagement-bench above">▲ bench 8,2%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag sports">Sports</span>
+                <span class="vertical-secondary">Tipster · fútbol</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring high">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="26"/>
+                  </svg>
+                  <div class="score-ring-val">72</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 52%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 88%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 92%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 68%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip riders">Rider</span></td>
+            <td>
+              <div class="brands-cell">
+                <div class="brands-primary">
+                  <span class="brand-dot competitor"></span>
+                  Betsson
+                </div>
+                <div class="brands-secondary">+ Codere</div>
+              </div>
+            </td>
+            <td><span class="action-rec contact-std">✉ Contact standard</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar lm">LM</div>
+                <span class="owner-name">Luis M.</span>
+              </div>
+            </td>
+            <td><div class="activity-cell fresh">hace 6h</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star">☆</button>
+                <button class="icon-btn">✉</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 5: VANGUARD - Female slots, untapped -->
+          <tr class="vanguard-row attention-row">
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-slots">RR</div>
+                <div class="creator-body">
+                  <div class="creator-name">
+                    reelrider
+                    <span class="new-dot" title="Vanguard nuevo"></span>
+                  </div>
+                  <div class="creator-handle">@reelrider</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇨🇴</span> CO · español
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon kick primary">K</div>
+                <div class="platform-icon tt">♪</div>
+                <div class="platform-icon ig">◉</div>
+                <div class="platform-icon tg">T</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>86<em>K</em></div>
+                <div class="followers-delta up">▲ 34% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">13<em>,5%</em></div>
+                <div class="engagement-bench above">▲ bench 6,4%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag slots">Slots</span>
+                <span class="vertical-secondary">LATAM live</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring high">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="14"/>
+                  </svg>
+                  <div class="score-ring-val">84</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 72%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 94%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 96%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 65%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip vanguard">Vanguard</span></td>
+            <td>
+              <div class="brands-cell">
+                <div class="brands-primary">
+                  <span class="brand-dot outside"></span>
+                  <em>NovaSpin</em>
+                </div>
+                <div class="brands-secondary">1 deal · exclusivo?</div>
+              </div>
+            </td>
+            <td><span class="action-rec contact-now">✦ Contact now · premium</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar no">?</div>
+                <span class="owner-name unassigned">sin asignar</span>
+              </div>
+            </td>
+            <td><div class="activity-cell fresh">hoy 11:18</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star">☆</button>
+                <button class="icon-btn">↴</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 6: FLAGGED - Possible fraud -->
+          <tr class="attention-row">
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-mixed">CF</div>
+                <div class="creator-body">
+                  <div class="creator-name">CryptoFast_Pro</div>
+                  <div class="creator-handle">@cryptofast_pro</div>
+                  <div class="creator-geo">
+                    <span class="flag">🌐</span> Global · EN
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon yt primary">▶</div>
+                <div class="platform-icon tg">T</div>
+                <div class="platform-icon tw">𝕏</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>680<em>K</em></div>
+                <div class="followers-delta up">▲ 142% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">0<em>,4%</em></div>
+                <div class="engagement-bench below">▼ bench 3,2%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag crypto">Crypto</span>
+                <span class="vertical-secondary">Signals · hype</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring low">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="68"/>
+                  </svg>
+                  <div class="score-ring-val">28</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 82%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 14%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 45%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">X</span><div class="minibar"><div class="minibar-fill x" style="width: 22%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip flagged">Flagged</span></td>
+            <td>
+              <div class="brands-cell">
+                <div class="brands-primary">
+                  <span class="brand-dot outside"></span>
+                  Varios
+                </div>
+                <div class="brands-secondary">· schemes sospechosos</div>
+              </div>
+            </td>
+            <td><span class="action-rec review">⚠ Manual review</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar no">?</div>
+                <span class="owner-name unassigned">sin asignar</span>
+              </div>
+            </td>
+            <td><div class="activity-cell fresh">hoy 09:04</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn" title="Compliance">⚠</button>
+                <button class="icon-btn">✕</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 7: SCOUT - Growing poker creator -->
+          <tr>
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-poker">PK</div>
+                <div class="creator-body">
+                  <div class="creator-name">PokerKnightPT</div>
+                  <div class="creator-handle">@pokerknight_pt</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇵🇹</span> PT · português
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon twitch primary">T</div>
+                <div class="platform-icon yt">▶</div>
+                <div class="platform-icon dc">D</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>22<em>K</em></div>
+                <div class="followers-delta up">▲ 8% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">9<em>,2%</em></div>
+                <div class="engagement-bench above">▲ bench 5,8%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag poker">Poker</span>
+                <span class="vertical-secondary">Tournaments</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring mid">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="40"/>
+                  </svg>
+                  <div class="score-ring-val">58</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 35%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 78%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 70%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 45%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip scouts">Scout</span></td>
+            <td>
+              <div class="brands-cell none">
+                <div class="brands-primary">
+                  <span class="brand-dot none"></span>
+                  no monetiza
+                </div>
+              </div>
+            </td>
+            <td><span class="action-rec monitor">◌ Monitor · 30d</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar lm">LM</div>
+                <span class="owner-name">Luis M.</span>
+              </div>
+            </td>
+            <td><div class="activity-cell">hace 4 días</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star">☆</button>
+                <button class="icon-btn">✉</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 8: RIDER - Prop firm educator -->
+          <tr>
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-prop">FA</div>
+                <div class="creator-body">
+                  <div class="creator-name">FundedAce</div>
+                  <div class="creator-handle">@fundedace</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇬🇧</span> GB · English
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon yt primary">▶</div>
+                <div class="platform-icon dc">D</div>
+                <div class="platform-icon tw">𝕏</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>94<em>K</em></div>
+                <div class="followers-delta up">▲ 11% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">6<em>,1%</em></div>
+                <div class="engagement-bench above">▲ bench 4,1%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag prop">Prop Firms</span>
+                <span class="vertical-secondary">Tutoriales</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring high">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="20"/>
+                  </svg>
+                  <div class="score-ring-val">78</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 70%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 82%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 84%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 75%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip riders">Rider</span></td>
+            <td>
+              <div class="brands-cell">
+                <div class="brands-primary">
+                  <span class="brand-dot outside"></span>
+                  <em>FTMX</em> (Network)
+                </div>
+                <div class="brands-secondary">deal activo</div>
+              </div>
+            </td>
+            <td><span class="action-rec monitor">◌ Monitor · ya firmado</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar cr">CR</div>
+                <span class="owner-name">Carla R.</span>
+              </div>
+            </td>
+            <td><div class="activity-cell">hace 1 día</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star active">★</button>
+                <button class="icon-btn">✉</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 9: RE-ENGAGE - Previously contacted -->
+          <tr>
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-latam">ML</div>
+                <div class="creator-body">
+                  <div class="creator-name">MarioLopez.mx</div>
+                  <div class="creator-handle">@mariolopez_mx</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇲🇽</span> MX · español
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon yt primary">▶</div>
+                <div class="platform-icon tt">♪</div>
+                <div class="platform-icon ig">◉</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>52<em>K</em></div>
+                <div class="followers-delta up">▲ 42% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">8<em>,2%</em></div>
+                <div class="engagement-bench above">▲ bench 6,4%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag slots">Slots</span>
+                <span class="vertical-secondary">LATAM mobile</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring mid">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="30"/>
+                  </svg>
+                  <div class="score-ring-val">68</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 55%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 72%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 80%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 62%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip riders">Rider</span></td>
+            <td>
+              <div class="brands-cell none">
+                <div class="brands-primary">
+                  <span class="brand-dot none"></span>
+                  no detectado
+                </div>
+              </div>
+            </td>
+            <td><span class="action-rec re-engage">↻ Re-engage</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar cr">CR</div>
+                <span class="owner-name">Carla R.</span>
+              </div>
+            </td>
+            <td><div class="activity-cell fresh">hoy 08:22</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star">☆</button>
+                <button class="icon-btn">✉</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 10: DRIFTER - Small hobbyist -->
+          <tr>
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-mixed">CG</div>
+                <div class="creator-body">
+                  <div class="creator-name">CasinoGuy_Random</div>
+                  <div class="creator-handle">@casinoguy_random</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇮🇹</span> IT · italiano
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon twitch primary">T</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>3<em>,2K</em></div>
+                <div class="followers-delta flat">— 2% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">4<em>,1%</em></div>
+                <div class="engagement-bench below">▼ bench 6,4%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag slots">Slots</span>
+                <span class="vertical-secondary">Hobby stream</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring low">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="58"/>
+                  </svg>
+                  <div class="score-ring-val">36</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 18%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 42%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 58%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 12%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip drifters">Drifter</span></td>
+            <td>
+              <div class="brands-cell none">
+                <div class="brands-primary">
+                  <span class="brand-dot none"></span>
+                  no monetiza
+                </div>
+              </div>
+            </td>
+            <td><span class="action-rec monitor">◌ Background watch</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar no">?</div>
+                <span class="owner-name unassigned">auto</span>
+              </div>
+            </td>
+            <td><div class="activity-cell stale">hace 12 días</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star">☆</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 11: VANGUARD - Female trading educator -->
+          <tr class="vanguard-row">
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-trading">SP</div>
+                <div class="creator-body">
+                  <div class="creator-name">
+                    sofia.prime
+                    <span class="new-dot" title="Vanguard"></span>
+                  </div>
+                  <div class="creator-handle">@sofia.prime</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇪🇸</span> ES · español
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon ig primary">◉</div>
+                <div class="platform-icon tt">♪</div>
+                <div class="platform-icon yt">▶</div>
+                <div class="platform-icon tg">T</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>245<em>K</em></div>
+                <div class="followers-delta up">▲ 28% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">9<em>,4%</em></div>
+                <div class="engagement-bench above">▲ bench 5,2%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag trading">Trading · CFD</span>
+                <span class="vertical-secondary">Financial lifestyle</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring high">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="11"/>
+                  </svg>
+                  <div class="score-ring-val">88</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 88%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 90%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 82%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 92%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip vanguard">Vanguard</span></td>
+            <td>
+              <div class="brands-cell">
+                <div class="brands-primary">
+                  <span class="brand-dot competitor"></span>
+                  XTB
+                </div>
+                <div class="brands-secondary">+ eToro · exclusivo?</div>
+              </div>
+            </td>
+            <td><span class="action-rec contact-now">✦ Contact now · premium</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar cr">CR</div>
+                <span class="owner-name">Carla R.</span>
+              </div>
+            </td>
+            <td><div class="activity-cell fresh">hace 2h</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star active">★</button>
+                <button class="icon-btn">✉</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ROW 12: SCOUT - Small Kick streamer -->
+          <tr>
+            <td>
+              <div class="creator-cell">
+                <div class="creator-avatar avatar-slots">JJ</div>
+                <div class="creator-body">
+                  <div class="creator-name">julianjackpot</div>
+                  <div class="creator-handle">@julianjackpot</div>
+                  <div class="creator-geo">
+                    <span class="flag">🇨🇱</span> CL · español
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="platforms-cell">
+                <div class="platform-icon kick primary">K</div>
+                <div class="platform-icon tt">♪</div>
+              </div>
+            </td>
+            <td>
+              <div class="followers-cell">
+                <div>14<em>K</em></div>
+                <div class="followers-delta up">▲ 62% · 30d</div>
+              </div>
+            </td>
+            <td>
+              <div class="engagement-cell">
+                <div class="engagement-val">12<em>,8%</em></div>
+                <div class="engagement-bench above">▲ bench 6,4%</div>
+              </div>
+            </td>
+            <td>
+              <div class="vertical-cell">
+                <span class="vertical-tag slots">Slots</span>
+                <span class="vertical-secondary">LATAM newcomer</span>
+              </div>
+            </td>
+            <td>
+              <div class="score-block">
+                <div class="score-ring mid">
+                  <svg viewBox="0 0 36 36">
+                    <circle class="bg" cx="18" cy="18" r="15"/>
+                    <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="38"/>
+                  </svg>
+                  <div class="score-ring-val">60</div>
+                </div>
+                <div class="score-minibars">
+                  <div class="minibar-row"><span class="minibar-lbl">R</span><div class="minibar"><div class="minibar-fill r" style="width: 22%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">Q</span><div class="minibar"><div class="minibar-fill q" style="width: 88%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">F</span><div class="minibar"><div class="minibar-fill f" style="width: 92%"></div></div></div>
+                  <div class="minibar-row"><span class="minibar-lbl">M</span><div class="minibar"><div class="minibar-fill m" style="width: 30%"></div></div></div>
+                </div>
+              </div>
+            </td>
+            <td><span class="tier-chip scouts">Scout</span></td>
+            <td>
+              <div class="brands-cell none">
+                <div class="brands-primary">
+                  <span class="brand-dot none"></span>
+                  no monetiza aún
+                </div>
+              </div>
+            </td>
+            <td><span class="action-rec monitor">◌ Monitor · growth ×3</span></td>
+            <td>
+              <div class="owner-cell">
+                <div class="owner-avatar lm">LM</div>
+                <span class="owner-name">Luis M.</span>
+              </div>
+            </td>
+            <td><div class="activity-cell fresh">hace 8h</div></td>
+            <td>
+              <div class="row-actions">
+                <button class="icon-btn star">☆</button>
+                <button class="icon-btn">→</button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer with bulk actions -->
+    <div class="table-footer">
+      <div class="footer-left">
+        <span>Mostrando <strong style="color: var(--ink);">1 – 12</strong> de <strong style="color: var(--ink);">3.842</strong></span>
+        <span>·</span>
+        <span>Ordenado por <strong style="color: var(--oxblood);">Score ↓</strong></span>
+      </div>
+
+      <div class="bulk-action">
+        <span style="color: var(--ink-faint); margin-right: 8px;">Selección:</span>
+        <button class="bulk-btn">☰ Seleccionar visibles</button>
+        <button class="bulk-btn primary">✉ Outreach masivo · Riders</button>
+      </div>
+
+      <div class="page-nav">
+        <button class="page-btn" disabled>‹</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <span style="color: var(--ink-faint);">…</span>
+        <button class="page-btn">320</button>
+        <button class="page-btn">›</button>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+</body>
+</html>

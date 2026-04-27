@@ -1,0 +1,3123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nachoslots — El Rastreador · Drake's Bounty</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #E8DCC0;
+  --paper-warm: #DFD1B1;
+  --paper-dark: #C9B994;
+  --paper-shadow: #A89573;
+  --ink: #1A130C;
+  --ink-soft: #2B2018;
+  --ink-dim: #4D3D2E;
+  --ink-faint: #75624C;
+  --ink-ghost: #9C8B6F;
+  --brass: #A67C2E;
+  --brass-light: #C9A961;
+  --brass-deep: #7A5920;
+  --oxblood: #762525;
+  --oxblood-deep: #4F1818;
+  --absinthe: #4A5C3A;
+  --absinthe-light: #6B8257;
+  --sea: #3d5a6b;
+  --rule: rgba(26, 19, 12, 0.22);
+  --rule-strong: rgba(26, 19, 12, 0.45);
+  --rule-dim: rgba(26, 19, 12, 0.10);
+  --display: 'Fraunces', Georgia, serif;
+  --ui: 'Work Sans', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  min-height: 100vh;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 20% 20%, #EFE4C9 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, #D6C59E 0%, transparent 60%),
+    var(--paper);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch' seed='7'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0 0.22 0 0 0 0.45 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+nav, aside, main, footer { position: relative; z-index: 3; }
+
+.app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+/* ============ SIDEBAR (backoffice) ============ */
+.sidebar {
+  border-right: 1px solid var(--rule);
+  padding: 20px 0;
+  background: rgba(26, 19, 12, 0.03);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 0 20px 18px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: inherit;
+}
+
+.sidebar-brand .seal { width: 30px; height: 30px; flex: none; }
+.sidebar-brand .wordmark {
+  font-family: var(--display);
+  font-weight: 500; font-size: 12px;
+  letter-spacing: 0.38em; text-transform: uppercase;
+  line-height: 1.1;
+}
+.sidebar-brand .wordmark em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+.sidebar-brand .tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--oxblood);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.context-switch {
+  margin: 14px 14px 8px;
+  padding: 6px;
+  background: var(--ink);
+  display: flex;
+  gap: 2px;
+}
+
+.ctx-btn {
+  flex: 1;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--paper-shadow);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  font-weight: 500;
+}
+
+.ctx-btn:hover { color: var(--paper); }
+.ctx-btn.active { background: var(--oxblood); color: var(--paper); }
+
+.sidebar-nav { padding: 16px 0 0; flex: 1; }
+.nav-group { margin-bottom: 18px; }
+.nav-group-label {
+  padding: 5px 20px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+
+.nav-subgroup {
+  padding-left: 8px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 20px;
+  font-family: var(--display);
+  font-weight: 400; font-size: 13px;
+  color: var(--ink-dim);
+  text-decoration: none;
+  position: relative;
+  transition: all 0.25s var(--ease);
+  font-variation-settings: "opsz" 72;
+}
+
+.nav-item:hover { color: var(--ink); background: rgba(26, 19, 12, 0.04); }
+.nav-item.active {
+  color: var(--oxblood);
+  font-weight: 500;
+  background: rgba(118, 37, 37, 0.06);
+  font-style: italic;
+}
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--oxblood);
+}
+
+.nav-item.subitem {
+  padding-left: 38px;
+  font-size: 12px;
+}
+
+.nav-item.subitem::before { left: 20px; }
+
+.nav-item .icon {
+  width: 14px;
+  color: var(--ink-faint);
+  font-family: var(--display);
+  font-style: italic; font-size: 13px;
+  text-align: center;
+}
+.nav-item.active .icon { color: var(--oxblood); }
+
+.nav-item .count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-ghost);
+  letter-spacing: 0.08em;
+}
+
+.nav-item.active .count { color: var(--oxblood); font-weight: 500; }
+
+.nav-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 0.1em;
+  padding: 1px 5px;
+  background: var(--oxblood); color: var(--paper);
+}
+
+.nav-badge.attention {
+  background: var(--brass);
+  color: var(--ink);
+}
+
+.sidebar-user {
+  padding: 12px 20px;
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
+}
+
+.user-avatar {
+  width: 30px; height: 30px;
+  border: 1px solid var(--rule-strong);
+  background: linear-gradient(135deg, #762525, #4f1818);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-style: italic; font-weight: 500; font-size: 14px;
+  color: var(--paper);
+  flex: none;
+}
+
+.user-info { overflow: hidden; }
+.user-name { font-family: var(--display); font-weight: 500; font-size: 12px; color: var(--ink); }
+.user-role {
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 1px;
+}
+
+/* ============ MAIN ============ */
+.main { padding: 0; min-width: 0; }
+
+/* Breadcrumb */
+.breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+  gap: 20px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.breadcrumb a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+
+.breadcrumb a:hover { color: var(--oxblood); }
+
+.breadcrumb .sep {
+  color: var(--ink-ghost);
+  font-family: var(--display);
+  font-size: 12px;
+}
+
+.breadcrumb .current {
+  color: var(--oxblood);
+  font-weight: 500;
+}
+
+.breadcrumb-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.breadcrumb-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 7px 12px;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  display: inline-flex; align-items: center; gap: 7px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.breadcrumb-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.breadcrumb-btn.primary {
+  background: var(--oxblood);
+  color: var(--paper);
+  border-color: var(--oxblood);
+}
+.breadcrumb-btn.primary:hover { background: var(--oxblood-deep); border-color: var(--oxblood-deep); }
+
+.breadcrumb-btn.icon-only {
+  width: 30px; height: 30px;
+  padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* ============ HERO — CREATOR IDENTITY ============ */
+.creator-hero {
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 28px;
+  align-items: start;
+}
+
+.creator-avatar-big {
+  width: 96px; height: 96px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 42px;
+  flex: none;
+  background: linear-gradient(135deg, #1a0b2e 0%, #7a1a5e 50%, #ff006e 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.creator-avatar-big::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 120%, rgba(255, 0, 110, 0.6) 0%, transparent 60%);
+  z-index: 1;
+}
+
+.creator-avatar-big span {
+  position: relative;
+  z-index: 2;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.creator-avatar-big .vanguard-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  background: var(--oxblood);
+  color: var(--paper);
+  padding: 3px 7px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 1px solid var(--oxblood-deep);
+  z-index: 3;
+}
+
+.creator-main { min-width: 0; }
+
+.creator-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.creator-title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variation-settings: "opsz" 144, "SOFT" 25;
+}
+
+.creator-title em { font-style: italic; color: var(--oxblood); font-weight: 500; }
+
+.creator-handle-main {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink-dim);
+  letter-spacing: 0.01em;
+  margin-bottom: 14px;
+}
+
+.creator-geo-line {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.creator-geo-line .sep { color: var(--ink-ghost); font-family: var(--display); font-size: 12px; }
+
+.creator-geo-line strong { color: var(--ink-dim); font-weight: 500; }
+
+.creator-geo-line .flag { font-size: 16px; }
+
+.creator-desc {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 15px;
+  color: var(--ink-dim);
+  line-height: 1.45;
+  margin-bottom: 18px;
+  font-variation-settings: "opsz" 72;
+  max-width: 72ch;
+}
+
+.creator-desc em { color: var(--oxblood); }
+.creator-desc strong { font-weight: 500; color: var(--ink); font-style: normal; }
+
+/* Platforms row in hero */
+.platforms-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: rgba(26, 19, 12, 0.04);
+  border-left: 2px solid var(--brass);
+  flex-wrap: wrap;
+}
+
+.platforms-hero-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  flex: none;
+}
+
+.platform-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s var(--ease);
+}
+
+.platform-chip:hover { border-color: var(--ink); }
+
+.platform-chip.primary {
+  border-color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.04);
+  color: var(--oxblood);
+  font-weight: 600;
+}
+
+.platform-chip .platform-mini {
+  width: 18px; height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+  font-size: 10px;
+  flex: none;
+  color: #fff;
+}
+
+.platform-chip .platform-mini.yt { background: #ff0000; }
+.platform-chip .platform-mini.tt { background: #000; }
+.platform-chip .platform-mini.tw { background: #1d9bf0; }
+.platform-chip .platform-mini.twitch { background: #9146ff; }
+.platform-chip .platform-mini.kick { background: #53fc18; color: #000; }
+.platform-chip .platform-mini.tg { background: #229ed9; }
+.platform-chip .platform-mini.dc { background: #5865f2; }
+.platform-chip .platform-mini.ig { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
+
+.platform-chip .platform-count {
+  font-family: var(--display);
+  font-weight: 600;
+  color: var(--ink);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: normal;
+}
+
+.platform-chip.primary .platform-count {
+  color: var(--oxblood);
+}
+
+/* Right column */
+.creator-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.overall-score {
+  border: 1px solid var(--rule-strong);
+  background: rgba(255, 252, 244, 0.5);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 340px;
+}
+
+.score-ring-big {
+  width: 80px; height: 80px;
+  flex: none;
+  position: relative;
+}
+
+.score-ring-big svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+.score-ring-big .bg { fill: none; stroke: rgba(26, 19, 12, 0.1); stroke-width: 4; }
+.score-ring-big .fg { fill: none; stroke-width: 4; stroke-linecap: round; stroke: var(--oxblood); }
+
+.score-ring-big-val {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 28px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  line-height: 1;
+}
+
+.score-ring-big-val .max {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.score-details { display: flex; flex-direction: column; gap: 5px; }
+
+.score-detail-row {
+  display: grid;
+  grid-template-columns: 90px 70px auto;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+
+.score-detail-label {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 9px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.score-detail-bar {
+  height: 4px;
+  background: rgba(26, 19, 12, 0.08);
+  position: relative;
+}
+
+.score-detail-bar-fill { height: 100%; }
+
+.score-detail-bar-fill.reach { background: var(--oxblood); }
+.score-detail-bar-fill.quality { background: var(--ink-dim); }
+.score-detail-bar-fill.fit { background: var(--brass); }
+.score-detail-bar-fill.monet { background: var(--absinthe); }
+.score-detail-bar-fill.risk { background: var(--absinthe-light); }
+
+.score-detail-val {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--ink);
+  text-align: right;
+  font-variation-settings: "opsz" 72;
+}
+
+/* Tier + status bar */
+.tier-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tier-chip-big {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  background: var(--oxblood);
+  color: var(--paper);
+  font-weight: 600;
+  border: 1px solid var(--oxblood-deep);
+}
+
+.tier-chip-big::before {
+  content: "";
+  width: 6px; height: 6px;
+  background: var(--brass-light);
+  flex: none;
+}
+
+.status-chip-big {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border: 1px solid var(--brass);
+  background: rgba(166, 124, 46, 0.06);
+  color: var(--brass-deep);
+  font-weight: 500;
+}
+
+.status-chip-big::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.owner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid var(--rule-strong);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  font-weight: 500;
+}
+
+.owner-badge:hover { border-color: var(--oxblood); color: var(--oxblood); }
+
+.owner-badge .avatar-mini {
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 11px;
+  border: 1px dashed var(--rule-strong);
+  color: var(--ink-ghost);
+}
+
+/* ============ AI FLAGS BANNER ============ */
+.ai-flags {
+  margin: 22px 32px 0;
+  padding: 16px 20px;
+  background: rgba(118, 37, 37, 0.04);
+  border: 1px solid var(--oxblood);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+
+.ai-flag-icon {
+  width: 38px; height: 38px;
+  flex: none;
+  border: 1.5px solid var(--oxblood);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--oxblood);
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.ai-flag-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-flag-title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+
+.ai-flag-title em { font-style: italic; color: var(--oxblood); }
+
+.ai-flag-desc {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--ink-dim);
+  line-height: 1.4;
+  max-width: 80ch;
+}
+
+.ai-flag-desc strong { font-weight: 500; color: var(--ink); font-style: normal; }
+
+.ai-flag-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.ai-flag-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 3px 7px;
+  border: 1px solid var(--oxblood);
+  color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.04);
+  font-weight: 500;
+}
+
+.ai-flag-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.flag-btn {
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  border: 1px solid;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.flag-btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.flag-btn.primary:hover { background: var(--oxblood); border-color: var(--oxblood); }
+
+.flag-btn.secondary { background: transparent; color: var(--ink-dim); border-color: var(--rule-strong); }
+.flag-btn.secondary:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* ============ CONTENT LAYOUT ============ */
+.detail-content {
+  padding: 28px 32px 48px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 28px;
+}
+
+.main-column { min-width: 0; display: flex; flex-direction: column; gap: 28px; }
+
+.side-column { display: flex; flex-direction: column; gap: 20px; }
+
+.card {
+  border: 1px solid var(--rule-strong);
+  background: rgba(255, 252, 244, 0.55);
+  padding: 22px 24px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule-dim);
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.card-title em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+
+.card-title .num {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+  font-weight: 500;
+}
+
+.card-action {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s var(--ease);
+}
+
+.card-action:hover { color: var(--oxblood); }
+
+/* ============ PLATFORM BREAKDOWN (the big one) ============ */
+.platforms-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.platform-block {
+  border: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+  padding: 18px 20px;
+}
+
+.platform-block.primary {
+  border-left: 3px solid var(--oxblood);
+  background: rgba(118, 37, 37, 0.03);
+}
+
+.platform-block-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule-dim);
+}
+
+.platform-logo {
+  width: 44px; height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  flex: none;
+  color: #fff;
+}
+
+.platform-logo.twitch { background: #9146ff; }
+.platform-logo.kick { background: #53fc18; color: #000; }
+.platform-logo.yt { background: #ff0000; }
+.platform-logo.tw { background: #1d9bf0; }
+.platform-logo.ig { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
+.platform-logo.tg { background: #229ed9; }
+.platform-logo.tt { background: #000; }
+
+.platform-info {
+  min-width: 0;
+}
+
+.platform-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.platform-name em { font-style: italic; color: var(--oxblood); }
+
+.primary-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  background: var(--oxblood);
+  color: var(--paper);
+  font-weight: 600;
+}
+
+.platform-url {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+
+.platform-url a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(77, 61, 46, 0.3);
+}
+
+.platform-url a:hover { border-bottom-color: var(--oxblood); color: var(--oxblood); }
+
+.platform-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.platform-tag-mini {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  background: rgba(26, 19, 12, 0.05);
+  color: var(--ink-dim);
+  border: 1px solid var(--rule);
+  font-weight: 500;
+}
+
+.platform-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.platform-action-btn {
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.platform-action-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* Platform metrics grid */
+.platform-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  background: var(--rule-dim);
+  margin-bottom: 14px;
+}
+
+.metric-cell {
+  padding: 10px 12px;
+  background: rgba(255, 252, 244, 0.9);
+}
+
+.metric-val {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 19px;
+  color: var(--ink);
+  line-height: 1;
+  font-variation-settings: "opsz" 72;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.metric-val em { font-style: italic; color: var(--oxblood); }
+
+.metric-val .currency {
+  font-size: 12px; color: var(--ink-dim); font-style: italic; font-weight: 300;
+}
+
+.metric-val .unit {
+  font-size: 11px; color: var(--ink-dim); font-weight: 400;
+}
+
+.metric-lbl {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.metric-delta {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.metric-delta.up { color: var(--absinthe); }
+.metric-delta.down { color: var(--oxblood); }
+
+/* Mini sparkline inside platform */
+.platform-chart-block {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+  padding: 10px 0 0;
+}
+
+.sparkline-mini {
+  width: 100%;
+  height: 36px;
+}
+
+.sparkline-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: right;
+  font-weight: 500;
+}
+
+.sparkline-label strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--ink);
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: 500;
+  margin-top: 2px;
+  font-style: italic;
+  font-variation-settings: "opsz" 72;
+}
+
+/* ============ AUDIENCE QUALITY ============ */
+.audience-quality {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.quality-section-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--oxblood);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule-dim);
+  font-weight: 500;
+}
+
+.demo-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 44px;
+  gap: 10px;
+  align-items: center;
+}
+
+.demo-label {
+  font-family: var(--display);
+  font-size: 12px;
+  color: var(--ink-dim);
+  font-variation-settings: "opsz" 72;
+  font-style: italic;
+}
+
+.demo-bar {
+  height: 6px;
+  background: rgba(26, 19, 12, 0.08);
+  position: relative;
+}
+
+.demo-bar-fill {
+  height: 100%;
+  background: var(--oxblood);
+}
+
+.demo-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Geo donut for audience */
+.audience-geo {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.geo-donut {
+  width: 100px; height: 100px;
+  flex: none;
+  position: relative;
+}
+
+.geo-donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+.geo-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.geo-item {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+
+.geo-color {
+  width: 10px; height: 10px;
+  flex: none;
+}
+
+.geo-flag { font-size: 12px; }
+
+.geo-country {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+
+.geo-pct {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--ink);
+  font-style: italic;
+  font-variation-settings: "opsz" 72;
+}
+
+/* ============ CONTENT SAMPLES ============ */
+.content-samples {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.content-card {
+  border: 1px solid var(--rule);
+  background: rgba(255, 252, 244, 0.9);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s var(--ease);
+  cursor: pointer;
+}
+
+.content-card:hover { border-color: var(--ink); }
+
+.content-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, #1a0b2e, #7a1a5e);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.content-thumb.slots1 {
+  background:
+    radial-gradient(ellipse at 50% 70%, #ff006e 0%, transparent 60%),
+    linear-gradient(135deg, #1a0b2e, #7a1a5e 70%);
+}
+
+.content-thumb.slots2 {
+  background:
+    radial-gradient(ellipse at 30% 30%, #ffd93d 0%, transparent 50%),
+    linear-gradient(135deg, #5741d9, #1a0b2e);
+}
+
+.content-thumb.slots3 {
+  background:
+    radial-gradient(ellipse at 70% 40%, #00ffff 0%, transparent 55%),
+    linear-gradient(135deg, #000 20%, #1a0b2e);
+}
+
+.content-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+}
+
+.content-thumb-title {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  right: 10px;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+  line-height: 1.2;
+  z-index: 2;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.content-thumb-play {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.content-thumb-play::after {
+  content: "";
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent #000;
+  margin-left: 2px;
+}
+
+.content-thumb-duration {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: #fff;
+  background: rgba(0,0,0,0.8);
+  padding: 2px 5px;
+  z-index: 3;
+  font-weight: 500;
+}
+
+.content-meta {
+  padding: 10px 12px;
+}
+
+.content-platform-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.content-platform-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+
+.content-platform-dot.twitch { background: #9146ff; }
+.content-platform-dot.yt { background: #ff0000; }
+.content-platform-dot.tt { background: #000; }
+
+.content-caption {
+  font-family: var(--display);
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.4;
+  font-variation-settings: "opsz" 72;
+  margin-bottom: 6px;
+}
+
+.content-caption em { color: var(--oxblood); font-style: italic; }
+
+.content-stats {
+  display: flex;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+}
+
+.content-stats strong { color: var(--ink); font-weight: 500; }
+
+.content-brand-mention {
+  margin-top: 6px;
+  padding: 5px 8px;
+  background: rgba(118, 37, 37, 0.06);
+  border-left: 2px solid var(--oxblood);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--oxblood);
+  font-weight: 500;
+}
+
+.content-brand-mention strong { color: var(--oxblood-deep); }
+
+/* ============ PROMOTED BRANDS ============ */
+.brands-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brand-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+  align-items: center;
+}
+
+.brand-row.competitor {
+  border-left: 3px solid var(--oxblood);
+  background: rgba(118, 37, 37, 0.03);
+}
+
+.brand-row.outside {
+  border-left: 3px solid var(--brass);
+}
+
+.brand-row.network {
+  border-left: 3px solid var(--absinthe-light);
+  background: rgba(74, 92, 58, 0.03);
+}
+
+.brand-favicon {
+  width: 34px; height: 34px;
+  border: 1px solid var(--rule-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 14px;
+  flex: none;
+  color: #fff;
+}
+
+.brand-favicon.novaspin { background: linear-gradient(135deg, #6b8257, #2f3e25); }
+.brand-favicon.stake { background: linear-gradient(135deg, #2d1a4a, #0a0512); color: #00ffff; }
+.brand-favicon.roobet { background: linear-gradient(135deg, #f7a600, #333); }
+
+.brand-info { min-width: 0; }
+
+.brand-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-variation-settings: "opsz" 72;
+}
+
+.brand-name em { font-style: italic; color: var(--oxblood); }
+
+.brand-type-chip {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.brand-type-chip.competitor {
+  color: var(--oxblood);
+  border-color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.04);
+}
+
+.brand-type-chip.outside {
+  color: var(--brass-deep);
+  border-color: var(--brass);
+  background: rgba(166, 124, 46, 0.05);
+}
+
+.brand-type-chip.network {
+  color: var(--absinthe);
+  border-color: var(--absinthe-light);
+  background: rgba(74, 92, 58, 0.06);
+}
+
+.brand-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.02em;
+}
+
+.brand-sub strong { color: var(--ink-dim); font-weight: 500; }
+
+.brand-intensity {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: flex-end;
+}
+
+.brand-mentions {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--ink);
+  font-style: italic;
+  font-variation-settings: "opsz" 72;
+}
+
+.brand-mentions em { color: var(--oxblood); }
+
+.brand-mentions-lbl {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.brand-promo-code {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 4px 8px;
+  background: rgba(26, 19, 12, 0.06);
+  color: var(--ink);
+  font-weight: 600;
+  border: 1px dashed var(--rule-strong);
+}
+
+/* ============ TIMELINE ============ */
+.timeline {
+  position: relative;
+  padding-left: 32px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--rule-strong);
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-marker {
+  position: absolute;
+  left: -25px;
+  top: 3px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--ink-dim);
+  flex: none;
+}
+
+.timeline-marker.oracle { border-color: var(--oxblood); background: var(--oxblood); box-shadow: 0 0 0 3px rgba(118, 37, 37, 0.1); }
+.timeline-marker.signal { border-color: var(--absinthe-light); background: var(--absinthe); }
+.timeline-marker.content { border-color: var(--sea); background: var(--sea); }
+.timeline-marker.warn { border-color: var(--brass-deep); background: var(--brass); }
+.timeline-marker.outreach { border-color: var(--ink); background: var(--ink); }
+.timeline-marker.growth { border-color: var(--absinthe); background: var(--absinthe-light); }
+
+.timeline-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.timeline-type {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  font-weight: 500;
+  padding: 2px 7px;
+  border: 1px solid;
+}
+
+.timeline-type.oracle { color: var(--oxblood); border-color: var(--oxblood); background: rgba(118, 37, 37, 0.04); }
+.timeline-type.signal { color: var(--absinthe); border-color: var(--absinthe-light); background: rgba(74, 92, 58, 0.05); }
+.timeline-type.content { color: var(--sea); border-color: rgba(61, 90, 107, 0.5); background: rgba(61, 90, 107, 0.04); }
+.timeline-type.warn { color: var(--brass-deep); border-color: var(--brass-deep); background: rgba(166, 124, 46, 0.08); }
+.timeline-type.outreach { color: var(--paper); border-color: var(--ink); background: var(--ink); }
+.timeline-type.growth { color: var(--absinthe); border-color: var(--absinthe); background: rgba(74, 92, 58, 0.06); }
+
+.timeline-when {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.timeline-source {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-left: auto;
+}
+
+.timeline-source strong { color: var(--ink-dim); font-weight: 500; font-style: normal; font-family: var(--mono); letter-spacing: 0.02em; }
+
+.timeline-desc {
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.45;
+  font-variation-settings: "opsz" 72;
+}
+
+.timeline-desc em { font-style: italic; color: var(--oxblood); }
+.timeline-desc strong { font-weight: 500; }
+
+.timeline-desc a {
+  color: var(--oxblood);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(118, 37, 37, 0.4);
+}
+
+.timeline-desc a:hover { border-bottom-style: solid; }
+
+.timeline-attachments {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.timeline-attachment {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  background: rgba(26, 19, 12, 0.04);
+  border: 1px solid var(--rule);
+  color: var(--ink-dim);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s var(--ease);
+}
+
+.timeline-attachment:hover { background: var(--ink); color: var(--paper); }
+
+/* ============ SIDE COLUMN ============ */
+.side-card {
+  border: 1px solid var(--rule-strong);
+  background: rgba(255, 252, 244, 0.55);
+  padding: 18px 20px;
+}
+
+.side-card.highlight {
+  border-color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.04);
+}
+
+.side-card-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule-dim);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+}
+
+/* Outreach composer */
+.outreach-intro {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-dim);
+  line-height: 1.4;
+  margin-bottom: 12px;
+  font-variation-settings: "opsz" 72;
+}
+
+.outreach-intro strong { font-style: normal; color: var(--ink); font-weight: 500; }
+.outreach-intro em { color: var(--oxblood); }
+
+.outreach-channel-pick {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.outreach-channel {
+  padding: 5px 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.outreach-channel:hover { border-color: var(--ink); color: var(--ink); }
+
+.outreach-channel.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.outreach-channel .ch-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+}
+
+.outreach-channel .ch-dot.tw { background: #1d9bf0; }
+.outreach-channel .ch-dot.tg { background: #229ed9; }
+.outreach-channel .ch-dot.email { background: #766; }
+.outreach-channel .ch-dot.dm { background: #9146ff; }
+
+.outreach-draft {
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  margin-bottom: 10px;
+}
+
+.outreach-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.outreach-label .regen {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--oxblood);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0;
+}
+
+.outreach-label .regen:hover { text-decoration: underline; }
+
+.outreach-text {
+  font-family: var(--display);
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.55;
+  font-variation-settings: "opsz" 72;
+  white-space: pre-wrap;
+}
+
+.outreach-text strong { font-weight: 500; color: var(--oxblood); }
+
+.outreach-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.outreach-btn {
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  border: 1px solid;
+  font-weight: 500;
+  flex: 1;
+  text-align: center;
+}
+
+.outreach-btn.primary {
+  background: var(--oxblood);
+  color: var(--paper);
+  border-color: var(--oxblood);
+}
+.outreach-btn.primary:hover { background: var(--oxblood-deep); border-color: var(--oxblood-deep); }
+
+.outreach-btn.secondary {
+  background: transparent;
+  color: var(--ink-dim);
+  border-color: var(--rule-strong);
+}
+.outreach-btn.secondary:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.outreach-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-dim);
+  font-weight: 500;
+}
+
+/* Match suggestions (operators) */
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+  text-decoration: none;
+  transition: all 0.2s var(--ease);
+}
+
+.match-item:hover { border-color: var(--oxblood); background: rgba(118, 37, 37, 0.04); }
+
+.match-fav {
+  width: 26px; height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 11px;
+  flex: none;
+  color: #fff;
+}
+
+.match-fav.novaspin { background: linear-gradient(135deg, #6b8257, #2f3e25); }
+.match-fav.stake { background: linear-gradient(135deg, #2d1a4a, #0a0512); color: #00ffff; }
+.match-fav.rollbit { background: linear-gradient(135deg, #00e5a0, #0a0512); color: #fff; }
+
+.match-info { min-width: 0; }
+
+.match-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+
+.match-pct {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  margin-top: 1px;
+  font-weight: 500;
+}
+
+.match-pct strong { color: var(--oxblood); font-weight: 600; }
+
+.match-score-mini {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--oxblood);
+  font-variation-settings: "opsz" 72;
+}
+
+/* Quick actions */
+.quick-action {
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--display);
+  font-size: 12px;
+  font-variation-settings: "opsz" 72;
+  margin-bottom: 5px;
+}
+
+.quick-action:last-child { margin-bottom: 0; }
+.quick-action:hover { border-color: var(--ink); background: rgba(26, 19, 12, 0.03); }
+
+.quick-action .ico {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--oxblood);
+  flex: none;
+  width: 16px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.quick-action .meta {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+/* Tags and notes compact */
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tag-item {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink-dim);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tag-item.x { color: var(--oxblood); border-color: var(--oxblood); background: rgba(118, 37, 37, 0.05); }
+
+.tag-add {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px dashed var(--rule-strong);
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  font-weight: 500;
+}
+
+.tag-add:hover {
+  border-color: var(--oxblood);
+  color: var(--oxblood);
+  border-style: solid;
+}
+
+/* Notes compact */
+.note-item {
+  padding: 10px 12px;
+  background: rgba(26, 19, 12, 0.03);
+  border-left: 2px solid var(--absinthe-light);
+  margin-bottom: 8px;
+}
+
+.note-item:last-child { margin-bottom: 0; }
+
+.note-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.note-author-avatar {
+  width: 18px; height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 9px;
+  flex: none;
+}
+
+.note-author-avatar.cr { background: linear-gradient(135deg, #6b8257, #4a5c3a); color: var(--paper); }
+.note-author-avatar.lm { background: linear-gradient(135deg, #d4be91, #a67c2e); color: var(--ink); }
+
+.note-author {
+  color: var(--ink);
+  font-weight: 500;
+  font-family: var(--display);
+  font-size: 10px;
+  letter-spacing: normal;
+  text-transform: none;
+  font-style: italic;
+}
+
+.note-time {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--ink-faint);
+}
+
+.note-text {
+  font-family: var(--display);
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-dim);
+  font-variation-settings: "opsz" 72;
+}
+
+.note-text em { font-style: italic; color: var(--oxblood); }
+.note-text strong { font-weight: 500; color: var(--ink); }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1200px) {
+  .detail-content { grid-template-columns: 1fr; }
+  .creator-hero { grid-template-columns: auto 1fr; }
+  .creator-right { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+  .audience-quality { grid-template-columns: 1fr; }
+  .content-samples { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static; height: auto;
+    flex-direction: row;
+    padding: 10px 20px;
+    border-right: none; border-bottom: 1px solid var(--rule);
+    overflow-x: auto;
+  }
+  .sidebar-brand, .sidebar-user, .context-switch { border-right: 1px solid var(--rule); padding-right: 16px; margin-right: 8px; border-bottom: none; margin-top: 0; margin-bottom: 0; }
+  .sidebar-nav { display: none; }
+  .creator-hero { grid-template-columns: 1fr; gap: 16px; padding: 20px; }
+  .creator-right { flex-direction: column; align-items: flex-start; }
+  .overall-score { min-width: 0; width: 100%; }
+  .detail-content { padding: 20px; }
+  .ai-flags { grid-template-columns: 1fr; margin: 22px 20px 0; }
+  .platform-metrics { grid-template-columns: 1fr 1fr; }
+  .content-samples { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <a href="drakesbounty-tracker.html" class="sidebar-brand">
+      <svg class="seal" viewBox="0 0 46 46">
+        <circle cx="23" cy="23" r="18" fill="none" stroke="#1A130C" stroke-width="1.2"/>
+        <path d="M13 22 Q13 18 15.5 17 L30.5 17 Q33 18 33 22 L33 22.5 L13 22.5 Z" fill="#1A130C"/>
+        <rect x="11" y="22.3" width="24" height="1.7" fill="#1A130C"/>
+        <rect x="13.5" y="19.8" width="19" height="0.8" fill="#A67C2E"/>
+        <path d="M19 29.5 Q21 30.5 23 30.5 Q25 30.5 27 29.5" stroke="#1A130C" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="wordmark">Drake<em>'s</em></div>
+        <div class="tag">· Backoffice ·</div>
+      </div>
+    </a>
+
+    <div class="context-switch">
+      <button class="ctx-btn">Creador</button>
+      <button class="ctx-btn active">Interno</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">· Inteligencia ·</div>
+        <a href="drakesbounty-oracle.html" class="nav-item">
+          <span class="icon">◉</span>
+          El Oráculo
+          <span class="count">1.247</span>
+        </a>
+        <div class="nav-subgroup">
+          <a href="drakesbounty-oracle.html" class="nav-item subitem">
+            <span class="icon">·</span>
+            Operadores
+            <span class="count">1.247</span>
+          </a>
+          <a href="drakesbounty-tracker.html" class="nav-item subitem active">
+            <span class="icon">·</span>
+            Creadores
+            <span class="count">3.842</span>
+          </a>
+        </div>
+        <a href="#" class="nav-item">
+          <span class="icon">◬</span>
+          Watchlists
+          <span class="count">14</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">✦</span>
+          Señales en vivo
+          <span class="nav-badge attention">7</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚑</span>
+          Fuentes
+          <span class="count">22</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Comercial ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">⚔</span>
+          Pipeline
+          <span class="count">84</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">✉</span>
+          Outreach cola
+          <span class="count">156</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">◈</span>
+          Negociaciones
+          <span class="count">11</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚖</span>
+          Contratos
+          <span class="count">36</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Network ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">★</span>
+          Operadores activos
+          <span class="count">47</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">§</span>
+          Creadores firmados
+          <span class="count">1.842</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚖</span>
+          Disputas
+          <span class="nav-badge">2</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Interno ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">⚙</span>
+          Ajustes del Rastreador
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">◌</span>
+          Equipo
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">CR</div>
+      <div class="user-info">
+        <div class="user-name">Carla Reyes</div>
+        <div class="user-role">Creator Success</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb">
+        <a href="drakesbounty-tracker.html">El Rastreador</a>
+        <span class="sep">/</span>
+        <a href="#">Vanguard</a>
+        <span class="sep">/</span>
+        <span class="current">nachoslots</span>
+      </div>
+
+      <div class="breadcrumb-actions">
+        <button class="breadcrumb-btn icon-only" title="Anterior">‹</button>
+        <button class="breadcrumb-btn icon-only" title="Siguiente">›</button>
+        <span style="color: var(--ink-ghost); margin: 0 6px;">|</span>
+        <button class="breadcrumb-btn">↗ Ver streams</button>
+        <button class="breadcrumb-btn">⎘ Duplicar</button>
+        <button class="breadcrumb-btn primary">↴ Asignarme</button>
+      </div>
+    </div>
+
+    <!-- ============ CREATOR HERO ============ -->
+    <div class="creator-hero">
+      <div class="creator-avatar-big">
+        <span>NS</span>
+        <span class="vanguard-badge">Vanguard</span>
+      </div>
+
+      <div class="creator-main">
+        <div class="creator-title-row">
+          <h1 class="creator-title">nacho<em>slots</em></h1>
+        </div>
+
+        <div class="creator-handle-main">@nachoslots</div>
+
+        <div class="creator-geo-line">
+          <span><span class="flag">🇪🇸</span> <strong>España</strong></span>
+          <span class="sep">·</span>
+          <span>Español · <strong>ES/LATAM</strong></span>
+          <span class="sep">·</span>
+          <span>24 años · streamer</span>
+          <span class="sep">·</span>
+          <span>Descubierto hace <strong>4 días</strong></span>
+        </div>
+
+        <p class="creator-desc">
+          Streamer español de slots con canal principal en <strong>Twitch</strong> y audiencia secundaria fuerte en <strong>Kick</strong>. Contenido en vivo centrado en slots de alta volatilidad, comunidad muy engaged con sesiones de <em>4-6 horas diarias</em>. Ha empezado a promover <em>NovaSpin</em> las últimas dos semanas — sin deal exclusivo detectado, ventana abierta.
+        </p>
+
+        <div class="platforms-hero">
+          <span class="platforms-hero-label">§ 4 plataformas</span>
+          <a href="#twitch-block" class="platform-chip primary">
+            <span class="platform-mini twitch">T</span>
+            Twitch <span class="platform-count">142K</span>
+          </a>
+          <a href="#kick-block" class="platform-chip">
+            <span class="platform-mini kick">K</span>
+            Kick <span class="platform-count">38K</span>
+          </a>
+          <a href="#yt-block" class="platform-chip">
+            <span class="platform-mini yt">▶</span>
+            YouTube <span class="platform-count">24K</span>
+          </a>
+          <a href="#x-block" class="platform-chip">
+            <span class="platform-mini tw">𝕏</span>
+            X <span class="platform-count">11K</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="creator-right">
+        <div class="overall-score">
+          <div class="score-ring-big">
+            <svg viewBox="0 0 36 36">
+              <circle class="bg" cx="18" cy="18" r="15"/>
+              <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="9"/>
+            </svg>
+            <div class="score-ring-big-val">
+              90
+              <span class="max">/ 100</span>
+            </div>
+          </div>
+          <div class="score-details">
+            <div class="score-detail-row">
+              <span class="score-detail-label">Alcance</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill reach" style="width: 86%"></div></div>
+              <span class="score-detail-val">86</span>
+            </div>
+            <div class="score-detail-row">
+              <span class="score-detail-label">Calidad</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill quality" style="width: 92%"></div></div>
+              <span class="score-detail-val">92</span>
+            </div>
+            <div class="score-detail-row">
+              <span class="score-detail-label">Ajuste</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill fit" style="width: 98%"></div></div>
+              <span class="score-detail-val">98</span>
+            </div>
+            <div class="score-detail-row">
+              <span class="score-detail-label">Monetización</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill monet" style="width: 75%"></div></div>
+              <span class="score-detail-val">75</span>
+            </div>
+            <div class="score-detail-row">
+              <span class="score-detail-label">Riesgo · inv</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill risk" style="width: 90%"></div></div>
+              <span class="score-detail-val">90</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tier-status-bar">
+          <div class="tier-chip-big">Vanguard</div>
+          <div class="status-chip-big">Pdte contactar</div>
+          <button class="owner-badge">
+            <span class="avatar-mini">?</span>
+            Asignar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ AI FLAGS BANNER ============ -->
+    <div class="ai-flags">
+      <div class="ai-flag-icon">✦</div>
+      <div class="ai-flag-body">
+        <div class="ai-flag-title">El <em>Rastreador</em> recomienda contacto inmediato — <strong>ventana crítica</strong>.</div>
+        <div class="ai-flag-desc">
+          Empezó a promover NovaSpin hace <strong>12 días</strong> sin señales de exclusividad firmada. Engagement subiendo un 12%, horas de stream por encima del benchmark, comunidad hispanohablante con ratio EU/LATAM ideal. <em>Si esperamos 2 semanas más probablemente firma exclusiva con otro operador</em>.
+        </div>
+        <div class="ai-flag-tags">
+          <span class="ai-flag-tag">Sin deal exclusivo</span>
+          <span class="ai-flag-tag">Fit 98%</span>
+          <span class="ai-flag-tag">Promueve a target prospect</span>
+        </div>
+      </div>
+      <div class="ai-flag-actions">
+        <button class="flag-btn secondary">Monitorizar</button>
+        <button class="flag-btn primary">Contactar ya →</button>
+      </div>
+    </div>
+
+    <!-- ============ CONTENT ============ -->
+    <div class="detail-content">
+
+      <!-- MAIN COLUMN -->
+      <section class="main-column">
+
+        <!-- PLATFORMS BREAKDOWN -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 01</span>
+              <span>Las <em>plataformas</em></span>
+            </h2>
+            <button class="card-action">↻ Actualizar métricas</button>
+          </div>
+
+          <div class="platforms-breakdown">
+
+            <!-- TWITCH (primary) -->
+            <div class="platform-block primary" id="twitch-block">
+              <div class="platform-block-head">
+                <div class="platform-logo twitch">T</div>
+                <div class="platform-info">
+                  <div class="platform-name">
+                    Twitch · nachoslots
+                    <span class="primary-tag">Primary</span>
+                  </div>
+                  <div class="platform-url">
+                    <a href="#">twitch.tv/nachoslots</a>
+                  </div>
+                  <div class="platform-tags">
+                    <span class="platform-tag-mini">Partner</span>
+                    <span class="platform-tag-mini">Gambling category</span>
+                    <span class="platform-tag-mini">Active 5-6h/día</span>
+                  </div>
+                </div>
+                <div class="platform-actions">
+                  <a href="#" class="platform-action-btn">↗ Canal</a>
+                  <a href="#" class="platform-action-btn">◉ En vivo</a>
+                </div>
+              </div>
+
+              <div class="platform-metrics">
+                <div class="metric-cell">
+                  <div class="metric-val">142<em>K</em></div>
+                  <div class="metric-lbl">Followers</div>
+                  <div class="metric-delta up">▲ 12% · 30d</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">3<em>.240</em></div>
+                  <div class="metric-lbl">Avg viewers</div>
+                  <div class="metric-delta up">▲ 18%</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">11<em>,2<span class="unit">%</span></em></div>
+                  <div class="metric-lbl">Engagement</div>
+                  <div class="metric-delta up">▲ bench 6,4%</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">1<em>.420</em></div>
+                  <div class="metric-lbl">Subs pagando</div>
+                  <div class="metric-delta up">▲ 6%</div>
+                </div>
+              </div>
+
+              <div class="platform-chart-block">
+                <svg class="sparkline-mini" viewBox="0 0 300 36" preserveAspectRatio="none">
+                  <path d="M 0,28 L 25,26 L 50,24 L 75,22 L 100,20 L 125,18 L 150,16 L 175,14 L 200,12 L 225,9 L 250,7 L 275,5 L 300,3" fill="none" stroke="#762525" stroke-width="1.5"/>
+                  <path d="M 0,28 L 25,26 L 50,24 L 75,22 L 100,20 L 125,18 L 150,16 L 175,14 L 200,12 L 225,9 L 250,7 L 275,5 L 300,3 L 300,36 L 0,36 Z" fill="rgba(118, 37, 37, 0.08)"/>
+                  <circle cx="300" cy="3" r="3" fill="#E8DCC0" stroke="#762525" stroke-width="1.5"/>
+                </svg>
+                <div class="sparkline-label">
+                  Followers · 90d
+                  <strong>+18K</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- KICK -->
+            <div class="platform-block" id="kick-block">
+              <div class="platform-block-head">
+                <div class="platform-logo kick">K</div>
+                <div class="platform-info">
+                  <div class="platform-name">Kick · nachoslots</div>
+                  <div class="platform-url">
+                    <a href="#">kick.com/nachoslots</a>
+                  </div>
+                  <div class="platform-tags">
+                    <span class="platform-tag-mini">Mirroring Twitch</span>
+                    <span class="platform-tag-mini">Sin overlap sub</span>
+                    <span class="platform-tag-mini">Creciendo rápido</span>
+                  </div>
+                </div>
+                <div class="platform-actions">
+                  <a href="#" class="platform-action-btn">↗ Canal</a>
+                </div>
+              </div>
+
+              <div class="platform-metrics">
+                <div class="metric-cell">
+                  <div class="metric-val">38<em>K</em></div>
+                  <div class="metric-lbl">Followers</div>
+                  <div class="metric-delta up">▲ 42% · 30d</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">820</div>
+                  <div class="metric-lbl">Avg viewers</div>
+                  <div class="metric-delta up">▲ 28%</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">14<em>,8<span class="unit">%</span></em></div>
+                  <div class="metric-lbl">Engagement</div>
+                  <div class="metric-delta up">▲ bench 8,2%</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">2<em>-3</em></div>
+                  <div class="metric-lbl">Streams/sem</div>
+                  <div class="metric-delta">mirror Twitch</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- YOUTUBE -->
+            <div class="platform-block" id="yt-block">
+              <div class="platform-block-head">
+                <div class="platform-logo yt">▶</div>
+                <div class="platform-info">
+                  <div class="platform-name">YouTube · nachoslots</div>
+                  <div class="platform-url">
+                    <a href="#">youtube.com/@nachoslots</a>
+                  </div>
+                  <div class="platform-tags">
+                    <span class="platform-tag-mini">Big Wins compilations</span>
+                    <span class="platform-tag-mini">3 videos/sem</span>
+                  </div>
+                </div>
+                <div class="platform-actions">
+                  <a href="#" class="platform-action-btn">↗ Canal</a>
+                </div>
+              </div>
+
+              <div class="platform-metrics">
+                <div class="metric-cell">
+                  <div class="metric-val">24<em>K</em></div>
+                  <div class="metric-lbl">Subscribers</div>
+                  <div class="metric-delta up">▲ 8% · 30d</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">186<em>K</em></div>
+                  <div class="metric-lbl">Views / mes</div>
+                  <div class="metric-delta up">▲ 22%</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">4<em>,2<span class="unit">%</span></em></div>
+                  <div class="metric-lbl">Engagement</div>
+                  <div class="metric-delta up">▲ bench 3,8%</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">2<em>:14</em></div>
+                  <div class="metric-lbl">Watch time</div>
+                  <div class="metric-delta up">▲ 0:20</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- X / TWITTER -->
+            <div class="platform-block" id="x-block">
+              <div class="platform-block-head">
+                <div class="platform-logo tw">𝕏</div>
+                <div class="platform-info">
+                  <div class="platform-name">X · @nachoslots</div>
+                  <div class="platform-url">
+                    <a href="#">x.com/nachoslots</a>
+                  </div>
+                  <div class="platform-tags">
+                    <span class="platform-tag-mini">Announcements</span>
+                    <span class="platform-tag-mini">Clips · big wins</span>
+                  </div>
+                </div>
+                <div class="platform-actions">
+                  <a href="#" class="platform-action-btn">↗ Perfil</a>
+                </div>
+              </div>
+
+              <div class="platform-metrics">
+                <div class="metric-cell">
+                  <div class="metric-val">11<em>K</em></div>
+                  <div class="metric-lbl">Followers</div>
+                  <div class="metric-delta up">▲ 4% · 30d</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">2<em>,8<span class="unit">%</span></em></div>
+                  <div class="metric-lbl">Engagement</div>
+                  <div class="metric-delta up">▲ bench 1,8%</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">18</div>
+                  <div class="metric-lbl">Posts / sem</div>
+                  <div class="metric-delta">estable</div>
+                </div>
+                <div class="metric-cell">
+                  <div class="metric-val">48<em>K</em></div>
+                  <div class="metric-lbl">Impresiones/sem</div>
+                  <div class="metric-delta up">▲ 14%</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- AUDIENCE QUALITY -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 02</span>
+              <span>La <em>audiencia</em></span>
+            </h2>
+            <button class="card-action">↗ Ver auditoría completa</button>
+          </div>
+
+          <div class="audience-quality">
+            <!-- Demographics -->
+            <div>
+              <div class="quality-section-title">§ Demografía</div>
+              <div class="demo-bars">
+                <div class="demo-bar-row">
+                  <span class="demo-label">25-34</span>
+                  <div class="demo-bar"><div class="demo-bar-fill" style="width: 58%; background: var(--oxblood);"></div></div>
+                  <span class="demo-val">58%</span>
+                </div>
+                <div class="demo-bar-row">
+                  <span class="demo-label">35-44</span>
+                  <div class="demo-bar"><div class="demo-bar-fill" style="width: 22%; background: var(--brass);"></div></div>
+                  <span class="demo-val">22%</span>
+                </div>
+                <div class="demo-bar-row">
+                  <span class="demo-label">18-24</span>
+                  <div class="demo-bar"><div class="demo-bar-fill" style="width: 14%; background: var(--absinthe);"></div></div>
+                  <span class="demo-val">14%</span>
+                </div>
+                <div class="demo-bar-row">
+                  <span class="demo-label">45+</span>
+                  <div class="demo-bar"><div class="demo-bar-fill" style="width: 6%; background: var(--ink-faint);"></div></div>
+                  <span class="demo-val">6%</span>
+                </div>
+              </div>
+
+              <div class="quality-section-title" style="margin-top: 20px;">§ Calidad verificada</div>
+              <div class="demo-bars">
+                <div class="demo-bar-row">
+                  <span class="demo-label">Autenticidad</span>
+                  <div class="demo-bar"><div class="demo-bar-fill" style="width: 94%; background: var(--absinthe);"></div></div>
+                  <span class="demo-val">94%</span>
+                </div>
+                <div class="demo-bar-row">
+                  <span class="demo-label">Retención</span>
+                  <div class="demo-bar"><div class="demo-bar-fill" style="width: 82%; background: var(--absinthe);"></div></div>
+                  <span class="demo-val">82%</span>
+                </div>
+                <div class="demo-bar-row">
+                  <span class="demo-label">Bot ratio</span>
+                  <div class="demo-bar"><div class="demo-bar-fill" style="width: 3%; background: var(--absinthe);"></div></div>
+                  <span class="demo-val">3%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Geography -->
+            <div>
+              <div class="quality-section-title">§ Geografía de audiencia</div>
+              <div class="audience-geo">
+                <div class="geo-donut">
+                  <svg viewBox="0 0 42 42">
+                    <!-- Base ring -->
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="rgba(26, 19, 12, 0.08)" stroke-width="6"/>
+                    <!-- ES 42% -->
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#762525" stroke-width="6"
+                            stroke-dasharray="42 58" stroke-dashoffset="0"/>
+                    <!-- MX 22% -->
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#A67C2E" stroke-width="6"
+                            stroke-dasharray="22 78" stroke-dashoffset="-42"/>
+                    <!-- AR 14% -->
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#4A5C3A" stroke-width="6"
+                            stroke-dasharray="14 86" stroke-dashoffset="-64"/>
+                    <!-- CO 10% -->
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#6B8257" stroke-width="6"
+                            stroke-dasharray="10 90" stroke-dashoffset="-78"/>
+                    <!-- CL 6% -->
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#3d5a6b" stroke-width="6"
+                            stroke-dasharray="6 94" stroke-dashoffset="-88"/>
+                    <!-- Rest 6% -->
+                    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#9C8B6F" stroke-width="6"
+                            stroke-dasharray="6 94" stroke-dashoffset="-94"/>
+                  </svg>
+                </div>
+
+                <div class="geo-list">
+                  <div class="geo-item">
+                    <span class="geo-color" style="background: #762525;"></span>
+                    <span class="geo-flag">🇪🇸</span>
+                    <span class="geo-country">España</span>
+                    <span class="geo-pct">42%</span>
+                  </div>
+                  <div class="geo-item">
+                    <span class="geo-color" style="background: #A67C2E;"></span>
+                    <span class="geo-flag">🇲🇽</span>
+                    <span class="geo-country">México</span>
+                    <span class="geo-pct">22%</span>
+                  </div>
+                  <div class="geo-item">
+                    <span class="geo-color" style="background: #4A5C3A;"></span>
+                    <span class="geo-flag">🇦🇷</span>
+                    <span class="geo-country">Argentina</span>
+                    <span class="geo-pct">14%</span>
+                  </div>
+                  <div class="geo-item">
+                    <span class="geo-color" style="background: #6B8257;"></span>
+                    <span class="geo-flag">🇨🇴</span>
+                    <span class="geo-country">Colombia</span>
+                    <span class="geo-pct">10%</span>
+                  </div>
+                  <div class="geo-item">
+                    <span class="geo-color" style="background: #3d5a6b;"></span>
+                    <span class="geo-flag">🇨🇱</span>
+                    <span class="geo-country">Chile</span>
+                    <span class="geo-pct">6%</span>
+                  </div>
+                  <div class="geo-item">
+                    <span class="geo-color" style="background: #9C8B6F;"></span>
+                    <span class="geo-flag">🌐</span>
+                    <span class="geo-country">Otros</span>
+                    <span class="geo-pct">6%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT SAMPLES -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 03</span>
+              <span>Muestras de <em>contenido</em></span>
+            </h2>
+            <button class="card-action">Ver más · 24</button>
+          </div>
+
+          <div class="content-samples">
+
+            <div class="content-card">
+              <div class="content-thumb slots1">
+                <div class="content-thumb-play"></div>
+                <div class="content-thumb-duration">5:24:18</div>
+                <div class="content-thumb-title">SESIÓN BRUTAL · NovaSpin · Gates of Olympus 1000 HITS TOP</div>
+              </div>
+              <div class="content-meta">
+                <div class="content-platform-line">
+                  <span class="content-platform-dot twitch"></span>
+                  Twitch VOD · hace 3 días
+                </div>
+                <div class="content-caption">Sesión completa en <em>NovaSpin</em>. Hit masivo en el minuto 2:18:00. Chat muy activo.</div>
+                <div class="content-stats">
+                  <span><strong>184K</strong> views</span>
+                  <span><strong>12,4%</strong> engagement</span>
+                </div>
+                <div class="content-brand-mention">
+                  💰 <strong>NovaSpin</strong> · promo mencionado · 8 menciones
+                </div>
+              </div>
+            </div>
+
+            <div class="content-card">
+              <div class="content-thumb slots2">
+                <div class="content-thumb-play"></div>
+                <div class="content-thumb-duration">18:42</div>
+                <div class="content-thumb-title">MEJORES WINS DE LA SEMANA · RECOPILACIÓN #34</div>
+              </div>
+              <div class="content-meta">
+                <div class="content-platform-line">
+                  <span class="content-platform-dot yt"></span>
+                  YouTube · hace 5 días
+                </div>
+                <div class="content-caption">Recopilación semanal. Incluye clips de <em>NovaSpin, Stake y Roobet</em>.</div>
+                <div class="content-stats">
+                  <span><strong>68K</strong> views</span>
+                  <span><strong>5,2%</strong> engagement</span>
+                </div>
+                <div class="content-brand-mention">
+                  💰 <strong>3 operadores mencionados</strong> · sin exclusiva
+                </div>
+              </div>
+            </div>
+
+            <div class="content-card">
+              <div class="content-thumb slots3">
+                <div class="content-thumb-play"></div>
+                <div class="content-thumb-duration">0:58</div>
+                <div class="content-thumb-title">LA MEJOR JUGADA DE ESTA SEMANA 🔥</div>
+              </div>
+              <div class="content-meta">
+                <div class="content-platform-line">
+                  <span class="content-platform-dot tt"></span>
+                  TikTok clip · hace 1 día
+                </div>
+                <div class="content-caption">Clip viral cruzado del stream. Muy alto engagement — apunta a tendencia.</div>
+                <div class="content-stats">
+                  <span><strong>412K</strong> views</span>
+                  <span><strong>18,2%</strong> engagement</span>
+                </div>
+                <div class="content-brand-mention">
+                  💰 <strong>NovaSpin</strong> · slot visible en overlay
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- PROMOTED BRANDS -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 04</span>
+              <span>A quién <em>promueve</em></span>
+            </h2>
+            <button class="card-action">↗ Histórico completo</button>
+          </div>
+
+          <div class="brands-list">
+
+            <div class="brand-row outside">
+              <div class="brand-favicon novaspin">Ns</div>
+              <div class="brand-info">
+                <div class="brand-name">
+                  <em>NovaSpin Casino</em>
+                  <span class="brand-type-chip outside">Brand actual · target</span>
+                </div>
+                <div class="brand-sub">
+                  Desde hace <strong>12 días</strong> · sin señales de exclusividad · <strong>overlay visible en streams</strong>
+                </div>
+              </div>
+              <div class="brand-intensity">
+                <div class="brand-mentions">48<em>×</em></div>
+                <div class="brand-mentions-lbl">menciones / 30d</div>
+              </div>
+              <div class="brand-promo-code">NACHO50</div>
+            </div>
+
+            <div class="brand-row competitor">
+              <div class="brand-favicon stake">S</div>
+              <div class="brand-info">
+                <div class="brand-name">
+                  Stake
+                  <span class="brand-type-chip competitor">Competidor · histórico</span>
+                </div>
+                <div class="brand-sub">
+                  Promovido entre ene-mar 2026 · <strong>relación terminada</strong> · ahora sin mención
+                </div>
+              </div>
+              <div class="brand-intensity">
+                <div class="brand-mentions">0<em>×</em></div>
+                <div class="brand-mentions-lbl">últimos 30d</div>
+              </div>
+              <div class="brand-promo-code" style="opacity: 0.5; text-decoration: line-through;">NACHO-STK</div>
+            </div>
+
+            <div class="brand-row outside">
+              <div class="brand-favicon roobet">R</div>
+              <div class="brand-info">
+                <div class="brand-name">
+                  Roobet
+                  <span class="brand-type-chip outside">Mención puntual</span>
+                </div>
+                <div class="brand-sub">
+                  Aparece en 2 recopilaciones de YouTube · <strong>sin contrato visible</strong> · uso incidental
+                </div>
+              </div>
+              <div class="brand-intensity">
+                <div class="brand-mentions">2<em>×</em></div>
+                <div class="brand-mentions-lbl">menciones / 30d</div>
+              </div>
+              <div class="brand-promo-code" style="opacity: 0.5;">sin código</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 05</span>
+              <span>El <em>timeline</em> del creador</span>
+            </h2>
+            <button class="card-action">Filtrar ↓</button>
+          </div>
+
+          <div class="timeline">
+
+            <div class="timeline-item">
+              <div class="timeline-marker oracle"></div>
+              <div class="timeline-header">
+                <span class="timeline-type oracle">Rastreador</span>
+                <span class="timeline-when">hoy · 14:18</span>
+                <span class="timeline-source">fuente · <strong>Twitch API</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Stream en vivo detectado — categoría <strong>Slots</strong>, 2.840 viewers concurrentes, overlay de <em>NovaSpin</em> visible en parte inferior del stream. Los mejores números de la semana.
+              </div>
+              <div class="timeline-attachments">
+                <a href="#" class="timeline-attachment">↗ Clip 12:42</a>
+                <a href="#" class="timeline-attachment">📷 Captura overlay</a>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker content"></div>
+              <div class="timeline-header">
+                <span class="timeline-type content">Contenido</span>
+                <span class="timeline-when">ayer · 22:04</span>
+                <span class="timeline-source">fuente · <strong>TikTok monitor</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Clip viral publicado en TikTok alcanzó <strong>412K views en 18 horas</strong>. El slot visible en el clip es de NovaSpin. Crecimiento de audiencia cross-platform previsto.
+              </div>
+              <div class="timeline-attachments">
+                <a href="#" class="timeline-attachment">↗ Clip</a>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker growth"></div>
+              <div class="timeline-header">
+                <span class="timeline-type growth">Crecimiento</span>
+                <span class="timeline-when">hace 2 días</span>
+                <span class="timeline-source">fuente · <strong>agregador</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Twitch +840 followers en 48h (vs +240 semana pasada). Kick +1.2K followers. <strong>Momentum fuerte</strong> — probablemente consecuencia del clip viral.
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker signal"></div>
+              <div class="timeline-header">
+                <span class="timeline-type signal">Señal</span>
+                <span class="timeline-when">hace 4 días</span>
+                <span class="timeline-source">fuente · <strong>NLP content analysis</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Detectada mención del código promo <strong>NACHO50</strong> en descripción del canal — primera aparición de código de afiliado personalizado. Confirma que <strong>NovaSpin ya pagó al menos un setup inicial</strong> pero aún no hay evidence de exclusividad.
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker signal"></div>
+              <div class="timeline-header">
+                <span class="timeline-type signal">Señal</span>
+                <span class="timeline-when">hace 8 días</span>
+                <span class="timeline-source">fuente · <strong>X post</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Tuiteó: <em>"a veces hay que probar cosas nuevas. nuevo patrocinador esta semana, estad atentos"</em>. Primera mención pública de cambio de brand principal.
+              </div>
+              <div class="timeline-attachments">
+                <a href="#" class="timeline-attachment">↗ Tweet</a>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker warn"></div>
+              <div class="timeline-header">
+                <span class="timeline-type warn">Cambio</span>
+                <span class="timeline-when">hace 12 días</span>
+                <span class="timeline-source">fuente · <strong>overlay detection</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Overlay de <strong>Stake</strong> reemplazado por overlay de <strong>NovaSpin</strong> en todos los streams. Es el <em>cambio más importante del mes</em> — ventana de oportunidad abierta para negociar con el creador antes de que se consolide con NovaSpin.
+              </div>
+              <div class="timeline-attachments">
+                <a href="#" class="timeline-attachment">📷 Antes</a>
+                <a href="#" class="timeline-attachment">📷 Después</a>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker oracle"></div>
+              <div class="timeline-header">
+                <span class="timeline-type oracle">Rastreador</span>
+                <span class="timeline-when">hace 4 días</span>
+                <span class="timeline-source">fuente · <strong>Twitch directory</strong></span>
+              </div>
+              <div class="timeline-desc">
+                <em>Creador descubierto</em>. El Rastreador lo identificó scanning Twitch Slots directory por viewers concurrentes >2K en streams hispanohablantes. Clasificado inicialmente como Rider (score 72), escalado a Vanguard tras análisis de engagement y calidad audiencia.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- SIDE COLUMN -->
+      <aside class="side-column">
+
+        <!-- OUTREACH COMPOSER -->
+        <div class="side-card highlight">
+          <div class="side-card-title">§ Borrador de outreach</div>
+
+          <p class="outreach-intro">
+            Drake preparó un primer contacto <em>contextualizado</em>. Elige canal y revisa antes de enviar.
+          </p>
+
+          <div class="outreach-channel-pick">
+            <button class="outreach-channel active">
+              <span class="ch-dot tw"></span>
+              X DM
+            </button>
+            <button class="outreach-channel">
+              <span class="ch-dot email"></span>
+              Email
+            </button>
+            <button class="outreach-channel">
+              <span class="ch-dot dm"></span>
+              Twitch msg
+            </button>
+            <button class="outreach-channel">
+              <span class="ch-dot tg"></span>
+              Telegram
+            </button>
+          </div>
+
+          <div class="outreach-draft">
+            <div class="outreach-label">
+              Draft · personalizado por IA
+              <button class="regen">↻ Regenerar</button>
+            </div>
+            <div class="outreach-text">Hola Nacho,
+
+Llevo unas semanas siguiéndote en Twitch y los clips recientes de Gates of Olympus han sido brutales — <strong>el de 412K views de ayer</strong> estaba muy bien montado.
+
+Me he fijado que ahora promocionas NovaSpin. Antes de que firmes nada exclusivo, quería presentarte Drake's Bounty. Somos una red de afiliación para creadores del sector que funciona distinto — <strong>menos fricción, mejores revshare, y sin exclusividades tóxicas</strong>.
+
+Si te apetece una llamada de 15 min esta semana te cuento. Sin compromiso.
+
+<strong>— Carla, Drake's Bounty</strong></div>
+          </div>
+
+          <div class="outreach-actions">
+            <button class="outreach-btn secondary">Editar</button>
+            <button class="outreach-btn primary">Enviar ✉</button>
+          </div>
+
+          <div class="outreach-meta">
+            <span>Canal: <strong style="color: var(--ink);">X DM</strong></span>
+            <span>Tiempo: <strong style="color: var(--ink);">~14s</strong></span>
+          </div>
+        </div>
+
+        <!-- MATCH SUGGESTIONS: Operators that fit this creator -->
+        <div class="side-card">
+          <div class="side-card-title">§ Match con operadores</div>
+          <p style="font-family: var(--display); font-style: italic; font-size: 12px; color: var(--ink-dim); margin-bottom: 10px; line-height: 1.4;">
+            Si firma al Gremio, estos 3 operadores encajarían mejor según fit score.
+          </p>
+
+          <div class="match-list">
+            <a href="#" class="match-item">
+              <div class="match-fav novaspin">Ns</div>
+              <div class="match-info">
+                <div class="match-name">NovaSpin Casino</div>
+                <div class="match-pct">Fit <strong>96%</strong> · ya promueve</div>
+              </div>
+              <div class="match-score-mini">96</div>
+            </a>
+
+            <a href="#" class="match-item">
+              <div class="match-fav stake">S</div>
+              <div class="match-info">
+                <div class="match-name">Stake</div>
+                <div class="match-pct">Fit <strong>88%</strong> · relación previa</div>
+              </div>
+              <div class="match-score-mini">88</div>
+            </a>
+
+            <a href="#" class="match-item">
+              <div class="match-fav rollbit">R</div>
+              <div class="match-info">
+                <div class="match-name">Rollbit</div>
+                <div class="match-pct">Fit <strong>84%</strong> · misma audiencia</div>
+              </div>
+              <div class="match-score-mini">84</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="side-card">
+          <div class="side-card-title">§ Acciones rápidas</div>
+
+          <button class="quick-action">
+            <span class="ico">↴</span>
+            Asignarme esta ficha
+            <span class="meta">⌘ A</span>
+          </button>
+
+          <button class="quick-action">
+            <span class="ico">☆</span>
+            Añadir a watchlist
+            <span class="meta">⌘ W</span>
+          </button>
+
+          <button class="quick-action">
+            <span class="ico">⚔</span>
+            Mandar al pipeline
+            <span class="meta">⌘ P</span>
+          </button>
+
+          <button class="quick-action">
+            <span class="ico">⎘</span>
+            Fusionar con duplicado
+          </button>
+
+          <button class="quick-action">
+            <span class="ico" style="color: var(--brass-deep);">⚠</span>
+            Marcar para review
+          </button>
+
+          <button class="quick-action">
+            <span class="ico" style="color: var(--oxblood);">✕</span>
+            Rechazar candidato
+          </button>
+        </div>
+
+        <!-- WATCHLIST MEMBERSHIP -->
+        <div class="side-card">
+          <div class="side-card-title">§ Watchlists</div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-family: var(--display); font-size: 12px; color: var(--ink-dim); font-style: italic; padding: 6px 10px; background: rgba(26,19,12,0.03); border-left: 2px solid var(--oxblood);">
+              Slots streamers · ES/LATAM
+            </div>
+            <div style="font-family: var(--display); font-size: 12px; color: var(--ink-dim); font-style: italic; padding: 6px 10px; background: rgba(26,19,12,0.03); border-left: 2px solid var(--brass);">
+              Vanguard untapped · Q2 2026
+            </div>
+          </div>
+        </div>
+
+        <!-- TAGS -->
+        <div class="side-card">
+          <div class="side-card-title">
+            § Etiquetas
+            <button class="tag-add">+ Nueva</button>
+          </div>
+          <div class="tags-list">
+            <span class="tag-item">ES/LATAM</span>
+            <span class="tag-item">Slots</span>
+            <span class="tag-item">Multi-plataforma</span>
+            <span class="tag-item x">Alta prioridad</span>
+            <span class="tag-item">Ventana abierta</span>
+            <span class="tag-item">Nunca contactado</span>
+          </div>
+        </div>
+
+        <!-- INTERNAL NOTES -->
+        <div class="side-card">
+          <div class="side-card-title">§ Notas del equipo</div>
+          <div class="note-item">
+            <div class="note-header">
+              <div class="note-author-avatar cr">CR</div>
+              <span class="note-author">Carla R.</span>
+              <span class="note-time">hace 1 día</span>
+            </div>
+            <div class="note-text">
+              El clip de TikTok de 412K views es <em>oro</em>. Este tío tiene una comunidad muy leal. Si firmamos con él podemos cruzarlo con <strong>Stakelight</strong> para piloto LATAM.
+            </div>
+          </div>
+          <div class="note-item">
+            <div class="note-header">
+              <div class="note-author-avatar lm">LM</div>
+              <span class="note-author">Luis M.</span>
+              <span class="note-time">hace 2 días</span>
+            </div>
+            <div class="note-text">
+              Relación previa con Stake terminó en <strong>mal tono</strong> según su discord — oportunidad para posicionar el Código.
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>
+
+</body>
+</html>

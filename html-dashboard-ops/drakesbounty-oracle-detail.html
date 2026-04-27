@@ -1,0 +1,2522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaSpin Casino — El Oráculo · Drake's Bounty</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #E8DCC0;
+  --paper-warm: #DFD1B1;
+  --paper-dark: #C9B994;
+  --paper-shadow: #A89573;
+  --ink: #1A130C;
+  --ink-soft: #2B2018;
+  --ink-dim: #4D3D2E;
+  --ink-faint: #75624C;
+  --ink-ghost: #9C8B6F;
+  --brass: #A67C2E;
+  --brass-light: #C9A961;
+  --brass-deep: #7A5920;
+  --oxblood: #762525;
+  --oxblood-deep: #4F1818;
+  --absinthe: #4A5C3A;
+  --absinthe-light: #6B8257;
+  --sea: #3d5a6b;
+  --rule: rgba(26, 19, 12, 0.22);
+  --rule-strong: rgba(26, 19, 12, 0.45);
+  --rule-dim: rgba(26, 19, 12, 0.10);
+  --display: 'Fraunces', Georgia, serif;
+  --ui: 'Work Sans', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  min-height: 100vh;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 20% 20%, #EFE4C9 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, #D6C59E 0%, transparent 60%),
+    var(--paper);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch' seed='7'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0 0.22 0 0 0 0.45 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+nav, aside, main, footer { position: relative; z-index: 3; }
+
+.app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+/* ============ SIDEBAR (backoffice - reused from Oracle) ============ */
+.sidebar {
+  border-right: 1px solid var(--rule);
+  padding: 20px 0;
+  background: rgba(26, 19, 12, 0.03);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 0 20px 18px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: inherit;
+}
+
+.sidebar-brand .seal { width: 30px; height: 30px; flex: none; }
+.sidebar-brand .wordmark {
+  font-family: var(--display);
+  font-weight: 500; font-size: 12px;
+  letter-spacing: 0.38em; text-transform: uppercase;
+  line-height: 1.1;
+}
+.sidebar-brand .wordmark em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+.sidebar-brand .tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--oxblood);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.context-switch {
+  margin: 14px 14px 8px;
+  padding: 6px;
+  background: var(--ink);
+  display: flex;
+  gap: 2px;
+}
+
+.ctx-btn {
+  flex: 1;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--paper-shadow);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  font-weight: 500;
+}
+
+.ctx-btn:hover { color: var(--paper); }
+.ctx-btn.active { background: var(--oxblood); color: var(--paper); }
+
+.sidebar-nav { padding: 16px 0 0; flex: 1; }
+.nav-group { margin-bottom: 18px; }
+.nav-group-label {
+  padding: 5px 20px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 20px;
+  font-family: var(--display);
+  font-weight: 400; font-size: 13px;
+  color: var(--ink-dim);
+  text-decoration: none;
+  position: relative;
+  transition: all 0.25s var(--ease);
+  font-variation-settings: "opsz" 72;
+}
+
+.nav-item:hover { color: var(--ink); background: rgba(26, 19, 12, 0.04); }
+.nav-item.active {
+  color: var(--oxblood);
+  font-weight: 500;
+  background: rgba(118, 37, 37, 0.06);
+  font-style: italic;
+}
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--oxblood);
+}
+
+.nav-item .icon {
+  width: 14px;
+  color: var(--ink-faint);
+  font-family: var(--display);
+  font-style: italic; font-size: 13px;
+  text-align: center;
+}
+.nav-item.active .icon { color: var(--oxblood); }
+
+.nav-item .count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-ghost);
+  letter-spacing: 0.08em;
+}
+
+.nav-item.active .count { color: var(--oxblood); font-weight: 500; }
+
+.nav-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 0.1em;
+  padding: 1px 5px;
+  background: var(--oxblood); color: var(--paper);
+}
+
+.nav-badge.attention {
+  background: var(--brass);
+  color: var(--ink);
+}
+
+.sidebar-user {
+  padding: 12px 20px;
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 10px;
+}
+
+.user-avatar {
+  width: 30px; height: 30px;
+  border: 1px solid var(--rule-strong);
+  background: linear-gradient(135deg, #4a5c3a, #2f3e25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-style: italic; font-weight: 500; font-size: 14px;
+  color: var(--paper);
+  flex: none;
+}
+
+.user-info { overflow: hidden; }
+.user-name { font-family: var(--display); font-weight: 500; font-size: 12px; color: var(--ink); }
+.user-role {
+  font-family: var(--mono);
+  font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-top: 1px;
+}
+
+/* ============ MAIN ============ */
+.main { padding: 0; min-width: 0; }
+
+/* Breadcrumb header */
+.breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+  gap: 20px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.breadcrumb a {
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+
+.breadcrumb a:hover { color: var(--oxblood); }
+
+.breadcrumb .sep {
+  color: var(--ink-ghost);
+  font-family: var(--display);
+  font-size: 12px;
+}
+
+.breadcrumb .current {
+  color: var(--oxblood);
+  font-weight: 500;
+}
+
+.breadcrumb-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.breadcrumb-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 7px 12px;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  display: inline-flex; align-items: center; gap: 7px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.breadcrumb-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.breadcrumb-btn.primary {
+  background: var(--oxblood);
+  color: var(--paper);
+  border-color: var(--oxblood);
+}
+.breadcrumb-btn.primary:hover { background: var(--oxblood-deep); border-color: var(--oxblood-deep); }
+
+.breadcrumb-btn.icon-only {
+  width: 30px; height: 30px;
+  padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* ============ HERO — PLATFORM IDENTITY ============ */
+.platform-hero {
+  padding: 28px 32px;
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 28px;
+  align-items: start;
+}
+
+.platform-favicon-big {
+  width: 80px; height: 80px;
+  border: 1px solid var(--rule-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 36px;
+  flex: none;
+  background: linear-gradient(135deg, #6b8257, #2f3e25);
+  color: var(--paper);
+  position: relative;
+}
+
+.platform-favicon-big .new-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  background: var(--brass);
+  color: var(--ink);
+  padding: 2px 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 1px solid var(--brass-deep);
+}
+
+.platform-main { min-width: 0; }
+
+.platform-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.platform-title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variation-settings: "opsz" 144, "SOFT" 25;
+}
+
+.platform-title em { font-style: italic; color: var(--oxblood); font-weight: 500; }
+
+.vertical-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border: 1px solid;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.vertical-tag.cryptocasino { color: #5741d9; border-color: rgba(87, 65, 217, 0.5); background: rgba(87, 65, 217, 0.04); }
+
+.platform-domain-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.platform-domain-main {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.platform-domain-main a {
+  color: var(--oxblood);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(118, 37, 37, 0.3);
+}
+
+.platform-domain-main a:hover { border-bottom-color: var(--oxblood); }
+
+.platform-domain-main .ext {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-decoration: none;
+}
+
+.additional-domains {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.domain-pill {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  border: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.03);
+  color: var(--ink-dim);
+  letter-spacing: 0.02em;
+}
+
+.platform-meta-line {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 15px;
+  color: var(--ink-dim);
+  line-height: 1.4;
+  margin-bottom: 18px;
+  font-variation-settings: "opsz" 72;
+}
+
+.platform-meta-line em { color: var(--oxblood); }
+
+.platform-meta-line strong { font-weight: 500; color: var(--ink); font-style: normal; }
+
+/* Parent / sister brands navigation */
+.parent-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: rgba(26, 19, 12, 0.04);
+  border-left: 2px solid var(--brass);
+}
+
+.parent-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-faint);
+  flex: none;
+  white-space: nowrap;
+}
+
+.parent-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  white-space: nowrap;
+}
+
+.parent-name a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(26, 19, 12, 0.3);
+}
+
+.parent-name a:hover { border-bottom-color: var(--oxblood); color: var(--oxblood); }
+
+.sister-sep {
+  color: var(--ink-ghost);
+  font-size: 12px;
+}
+
+.sisters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sister-brand {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 3px 7px;
+  border: 1px solid var(--rule);
+  color: var(--ink-dim);
+  text-decoration: none;
+  background: var(--paper);
+  transition: all 0.2s var(--ease);
+  font-weight: 500;
+}
+
+.sister-brand:hover {
+  border-color: var(--oxblood);
+  color: var(--oxblood);
+}
+
+.sister-brand .status-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.sister-brand .status-dot.active { background: var(--absinthe); }
+.sister-brand .status-dot.neg { background: var(--oxblood); }
+.sister-brand .status-dot.none { background: var(--ink-ghost); }
+
+/* Right column: scoring & status */
+.platform-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.overall-score {
+  border: 1px solid var(--rule-strong);
+  background: rgba(255, 252, 244, 0.5);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 280px;
+}
+
+.score-ring-big {
+  width: 76px; height: 76px;
+  flex: none;
+  position: relative;
+}
+
+.score-ring-big svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+.score-ring-big .bg { fill: none; stroke: rgba(26, 19, 12, 0.1); stroke-width: 4; }
+.score-ring-big .fg { fill: none; stroke-width: 4; stroke-linecap: round; stroke: var(--oxblood); }
+
+.score-ring-big-val {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  line-height: 1;
+}
+
+.score-ring-big-val .max {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.score-details { display: flex; flex-direction: column; gap: 6px; }
+
+.score-detail-row {
+  display: grid;
+  grid-template-columns: 80px 70px auto;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+
+.score-detail-label {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 9px;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.score-detail-bar {
+  height: 4px;
+  background: rgba(26, 19, 12, 0.08);
+  position: relative;
+}
+
+.score-detail-bar-fill {
+  height: 100%;
+}
+
+.score-detail-bar-fill.opp { background: linear-gradient(90deg, var(--oxblood), var(--brass-light)); }
+.score-detail-bar-fill.conf { background: linear-gradient(90deg, var(--ink-dim), var(--ink)); }
+.score-detail-bar-fill.reg { background: linear-gradient(90deg, var(--brass), var(--brass-light)); }
+.score-detail-bar-fill.urg { background: linear-gradient(90deg, var(--oxblood-deep), var(--oxblood)); }
+
+.score-detail-val {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--ink);
+  text-align: right;
+  font-variation-settings: "opsz" 72;
+}
+
+/* Status bar */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.status-chip-big {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border: 1px solid var(--oxblood);
+  background: rgba(118, 37, 37, 0.04);
+  color: var(--oxblood);
+  font-weight: 500;
+}
+
+.status-chip-big::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.owner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid var(--rule-strong);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  font-weight: 500;
+}
+
+.owner-badge:hover { border-color: var(--oxblood); color: var(--oxblood); }
+
+.owner-badge .avatar-mini {
+  width: 22px; height: 22px;
+  border-radius: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 11px;
+  border: 1px dashed var(--rule-strong);
+  color: var(--ink-ghost);
+}
+
+/* ============ AI FLAGS BANNER ============ */
+.ai-flags {
+  margin: 0 32px;
+  margin-top: 22px;
+  padding: 16px 20px;
+  background: rgba(166, 124, 46, 0.06);
+  border: 1px solid var(--brass);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+}
+
+.ai-flag-icon {
+  width: 38px; height: 38px;
+  flex: none;
+  border: 1.5px solid var(--brass-deep);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brass-deep);
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.ai-flag-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-flag-title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+
+.ai-flag-title em { font-style: italic; color: var(--oxblood); }
+
+.ai-flag-desc {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--ink-dim);
+  line-height: 1.4;
+}
+
+.ai-flag-desc strong { font-weight: 500; color: var(--ink); font-style: normal; }
+
+.ai-flag-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.ai-flag-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 3px 7px;
+  border: 1px solid var(--brass-deep);
+  color: var(--brass-deep);
+  background: rgba(166, 124, 46, 0.06);
+  font-weight: 500;
+}
+
+.ai-flag-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.flag-btn {
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  border: 1px solid;
+  font-weight: 500;
+}
+
+.flag-btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.flag-btn.primary:hover { background: var(--oxblood); border-color: var(--oxblood); }
+
+.flag-btn.secondary { background: transparent; color: var(--ink-dim); border-color: var(--rule-strong); }
+.flag-btn.secondary:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* ============ CONTENT LAYOUT ============ */
+.detail-content {
+  padding: 28px 32px 48px;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+}
+
+.main-column { min-width: 0; display: flex; flex-direction: column; gap: 28px; }
+
+.side-column { display: flex; flex-direction: column; gap: 20px; }
+
+/* Section card */
+.card {
+  border: 1px solid var(--rule-strong);
+  background: rgba(255, 252, 244, 0.55);
+  padding: 22px 24px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule-dim);
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 20px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.card-title em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+
+.card-title .num {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+  font-weight: 500;
+}
+
+.card-action {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s var(--ease);
+}
+
+.card-action:hover { color: var(--oxblood); }
+
+/* ============ INTEL / FACTS GRID ============ */
+.facts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: var(--rule-dim);
+}
+
+.fact-cell {
+  padding: 14px 16px;
+  background: rgba(255, 252, 244, 0.9);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 64px;
+}
+
+.fact-key {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.fact-val {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  line-height: 1.3;
+}
+
+.fact-val em { font-style: italic; color: var(--oxblood); }
+
+.fact-val .small {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-left: 4px;
+}
+
+.fact-val .monoline {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.fact-val .inline-flags {
+  display: inline-flex;
+  gap: 4px;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+.fact-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.fact-mini-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 2px 6px;
+  background: rgba(26, 19, 12, 0.06);
+  color: var(--ink-dim);
+  border: 1px solid var(--rule);
+}
+
+.fact-mini-tag.warn {
+  color: var(--oxblood);
+  border-color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.04);
+}
+
+.fact-mini-tag.ok {
+  color: var(--absinthe);
+  border-color: var(--absinthe-light);
+  background: rgba(74, 92, 58, 0.05);
+}
+
+/* ============ LICENSES ============ */
+.license-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.license-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+  align-items: center;
+}
+
+.license-row.doubtful {
+  border-left: 3px solid var(--brass);
+  background: rgba(166, 124, 46, 0.04);
+}
+
+.license-row.verified {
+  border-left: 3px solid var(--absinthe-light);
+}
+
+.license-row.unverified {
+  border-left: 3px solid var(--rule-strong);
+  opacity: 0.75;
+}
+
+.license-seal {
+  width: 44px; height: 44px;
+  flex: none;
+}
+
+.license-info { min-width: 0; }
+
+.license-regulator {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 2px;
+  font-variation-settings: "opsz" 72;
+}
+
+.license-number {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-dim);
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+
+.license-meta {
+  display: flex;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.license-meta .verified { color: var(--absinthe); }
+.license-meta .doubtful { color: var(--brass-deep); }
+
+.license-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.license-action-btn {
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  font-weight: 500;
+}
+
+.license-action-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* ============ MARKETS ============ */
+.markets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.market-card {
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.market-card.primary {
+  border-color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.04);
+}
+
+.market-card-flag {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.market-card-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+
+.market-card-meta {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+.market-card.primary .market-card-meta {
+  color: var(--oxblood);
+}
+
+/* ============ TIMELINE ============ */
+.timeline {
+  position: relative;
+  padding-left: 32px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--rule-strong);
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-marker {
+  position: absolute;
+  left: -25px;
+  top: 3px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--ink-dim);
+  flex: none;
+}
+
+.timeline-marker.oracle { border-color: var(--oxblood); background: var(--oxblood); box-shadow: 0 0 0 3px rgba(118, 37, 37, 0.1); }
+.timeline-marker.human { border-color: var(--brass); background: var(--brass); }
+.timeline-marker.signal { border-color: var(--absinthe-light); background: var(--absinthe); }
+.timeline-marker.warn { border-color: var(--brass-deep); background: var(--brass); }
+.timeline-marker.change { border-color: var(--sea); background: var(--sea); }
+
+.timeline-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.timeline-type {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  font-weight: 500;
+  padding: 2px 7px;
+  border: 1px solid;
+}
+
+.timeline-type.oracle { color: var(--oxblood); border-color: var(--oxblood); background: rgba(118, 37, 37, 0.04); }
+.timeline-type.human { color: var(--brass-deep); border-color: var(--brass); background: rgba(166, 124, 46, 0.05); }
+.timeline-type.signal { color: var(--absinthe); border-color: var(--absinthe-light); background: rgba(74, 92, 58, 0.05); }
+.timeline-type.warn { color: var(--brass-deep); border-color: var(--brass-deep); background: rgba(166, 124, 46, 0.08); }
+.timeline-type.change { color: var(--sea); border-color: rgba(61, 90, 107, 0.5); background: rgba(61, 90, 107, 0.04); }
+
+.timeline-when {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.timeline-source {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-left: auto;
+}
+
+.timeline-source strong { color: var(--ink-dim); font-weight: 500; font-style: normal; font-family: var(--mono); letter-spacing: 0.02em; }
+
+.timeline-desc {
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.45;
+  font-variation-settings: "opsz" 72;
+}
+
+.timeline-desc em { font-style: italic; color: var(--oxblood); }
+.timeline-desc strong { font-weight: 500; }
+
+.timeline-desc a {
+  color: var(--oxblood);
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(118, 37, 37, 0.4);
+}
+
+.timeline-desc a:hover { border-bottom-style: solid; }
+
+.timeline-attachments {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.timeline-attachment {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  background: rgba(26, 19, 12, 0.04);
+  border: 1px solid var(--rule);
+  color: var(--ink-dim);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s var(--ease);
+}
+
+.timeline-attachment:hover { background: var(--ink); color: var(--paper); }
+
+.timeline-diff {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: rgba(26, 19, 12, 0.04);
+  border-left: 2px solid var(--sea);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+
+.timeline-diff .removed {
+  color: var(--oxblood);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.timeline-diff .added {
+  color: var(--absinthe);
+  font-weight: 500;
+}
+
+/* ============ CONTACTS ============ */
+.contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+  align-items: center;
+  transition: border-color 0.2s var(--ease);
+}
+
+.contact-row:hover { border-color: var(--ink); }
+
+.contact-row.primary {
+  border-left: 3px solid var(--oxblood);
+  background: rgba(118, 37, 37, 0.03);
+}
+
+.contact-avatar {
+  width: 40px; height: 40px;
+  border: 1px solid var(--rule-strong);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 16px;
+  flex: none;
+}
+
+.contact-avatar.blue { background: linear-gradient(135deg, #5a7a9a, #3d5a6b); color: var(--paper); }
+.contact-avatar.green { background: linear-gradient(135deg, #6b8257, #4a5c3a); color: var(--paper); }
+.contact-avatar.gold { background: linear-gradient(135deg, #d4be91, #a67c2e); color: var(--ink); }
+
+.contact-info { min-width: 0; }
+
+.contact-name {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-variation-settings: "opsz" 72;
+}
+
+.contact-role {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-bottom: 6px;
+}
+
+.contact-channels {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.contact-channel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-dim);
+  text-decoration: none;
+  padding: 2px 7px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  letter-spacing: 0.02em;
+  font-weight: 500;
+  transition: all 0.2s var(--ease);
+}
+
+.contact-channel:hover { border-color: var(--oxblood); color: var(--oxblood); }
+
+.contact-channel .icon-ch {
+  font-size: 11px;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+
+.contact-channel.linkedin .icon-ch { color: #0077b5; }
+.contact-channel.telegram .icon-ch { color: #229ed9; }
+.contact-channel.email .icon-ch { color: var(--oxblood); }
+
+.contact-lastcontact {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: right;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.contact-lastcontact strong {
+  display: block;
+  font-family: var(--display);
+  font-size: 12px;
+  color: var(--ink);
+  letter-spacing: normal;
+  text-transform: none;
+  font-style: italic;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.contact-badge {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 3px 7px;
+  border: 1px solid var(--oxblood);
+  color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.04);
+  font-weight: 500;
+}
+
+.add-contact-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px dashed var(--rule-strong);
+  background: transparent;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  font-weight: 500;
+}
+
+.add-contact-btn:hover {
+  border-color: var(--oxblood);
+  color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.03);
+}
+
+/* ============ NOTES ============ */
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.note-item {
+  padding: 12px 14px;
+  background: rgba(26, 19, 12, 0.03);
+  border-left: 2px solid var(--absinthe-light);
+}
+
+.note-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.note-author-avatar {
+  width: 20px; height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 10px;
+  flex: none;
+}
+
+.note-author-avatar.jp { background: linear-gradient(135deg, #6b8257, #4a5c3a); color: var(--paper); }
+.note-author-avatar.mc { background: linear-gradient(135deg, #762525, #4f1818); color: var(--paper); }
+.note-author-avatar.ab { background: linear-gradient(135deg, #d4be91, #a67c2e); color: var(--ink); }
+
+.note-author {
+  color: var(--ink);
+  font-weight: 500;
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: normal;
+  text-transform: none;
+  font-style: italic;
+}
+
+.note-time {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-faint);
+}
+
+.note-text {
+  font-family: var(--display);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  font-variation-settings: "opsz" 72;
+}
+
+.note-text em { font-style: italic; color: var(--oxblood); }
+.note-text strong { font-weight: 500; color: var(--ink); }
+
+.note-composer {
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  margin-top: 12px;
+}
+
+.note-composer textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--display);
+  font-size: 13px;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 48px;
+  line-height: 1.5;
+  font-variation-settings: "opsz" 72;
+}
+
+.note-composer textarea:focus { outline: none; }
+.note-composer textarea::placeholder { color: var(--ink-ghost); font-style: italic; }
+
+.note-composer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--rule-dim);
+}
+
+.note-hints {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+
+/* ============ SIDE COLUMN CARDS ============ */
+.side-card {
+  border: 1px solid var(--rule-strong);
+  background: rgba(255, 252, 244, 0.55);
+  padding: 18px 20px;
+}
+
+.side-card-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--oxblood);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule-dim);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 500;
+}
+
+/* Quick actions */
+.quick-action {
+  width: 100%;
+  padding: 11px 14px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--display);
+  font-size: 13px;
+  font-variation-settings: "opsz" 72;
+  margin-bottom: 6px;
+}
+
+.quick-action:last-child { margin-bottom: 0; }
+
+.quick-action:hover { border-color: var(--ink); background: rgba(26, 19, 12, 0.03); }
+
+.quick-action.primary {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.quick-action.primary:hover { background: var(--oxblood); border-color: var(--oxblood); }
+
+.quick-action .ico {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--oxblood);
+  flex: none;
+  width: 18px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.quick-action.primary .ico { color: var(--brass-light); }
+
+.quick-action .meta {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+}
+
+.quick-action.primary .meta { color: var(--paper-shadow); }
+
+/* Watchlist status */
+.watchlist-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(166, 124, 46, 0.08);
+  border: 1px solid var(--brass);
+  margin-bottom: 8px;
+}
+
+.watchlist-icon {
+  color: var(--brass-deep);
+  font-family: var(--display);
+  font-size: 18px;
+}
+
+.watchlist-text {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+  flex: 1;
+}
+
+.watchlist-text strong { font-style: normal; font-weight: 500; color: var(--ink); }
+
+/* Tags */
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.tag-item {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink-dim);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+
+.tag-item:hover { border-color: var(--oxblood); color: var(--oxblood); }
+
+.tag-item.x {
+  color: var(--oxblood);
+  border-color: var(--oxblood);
+  background: rgba(118, 37, 37, 0.05);
+}
+
+.tag-add {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border: 1px dashed var(--rule-strong);
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  font-weight: 500;
+}
+
+.tag-add:hover {
+  border-color: var(--oxblood);
+  color: var(--oxblood);
+  border-style: solid;
+}
+
+/* Sources */
+.source-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+
+.source-item:last-child { border-bottom: none; }
+
+.source-item .source-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--absinthe);
+  flex: none;
+}
+
+.source-item .source-name {
+  font-weight: 500;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 13px;
+  font-style: italic;
+  font-variation-settings: "opsz" 72;
+  letter-spacing: normal;
+}
+
+.source-item .source-time {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1200px) {
+  .detail-content { grid-template-columns: 1fr; }
+  .platform-hero { grid-template-columns: auto 1fr; }
+  .platform-right { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+}
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static; height: auto;
+    flex-direction: row;
+    padding: 10px 20px;
+    border-right: none; border-bottom: 1px solid var(--rule);
+    overflow-x: auto;
+  }
+  .sidebar-brand, .sidebar-user, .context-switch { border-right: 1px solid var(--rule); padding-right: 16px; margin-right: 8px; border-bottom: none; margin-top: 0; margin-bottom: 0; }
+  .sidebar-nav { display: none; }
+  .platform-hero { grid-template-columns: 1fr; gap: 16px; padding: 20px; }
+  .platform-right { flex-direction: column; align-items: flex-start; }
+  .overall-score { min-width: 0; width: 100%; }
+  .detail-content { padding: 20px; }
+  .facts-grid { grid-template-columns: 1fr; }
+  .markets-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+  .ai-flags { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ SIDEBAR (backoffice - same as Oracle) ============ -->
+  <aside class="sidebar">
+    <a href="drakesbounty-oracle.html" class="sidebar-brand">
+      <svg class="seal" viewBox="0 0 46 46">
+        <circle cx="23" cy="23" r="18" fill="none" stroke="#1A130C" stroke-width="1.2"/>
+        <path d="M13 22 Q13 18 15.5 17 L30.5 17 Q33 18 33 22 L33 22.5 L13 22.5 Z" fill="#1A130C"/>
+        <rect x="11" y="22.3" width="24" height="1.7" fill="#1A130C"/>
+        <rect x="13.5" y="19.8" width="19" height="0.8" fill="#A67C2E"/>
+        <path d="M19 29.5 Q21 30.5 23 30.5 Q25 30.5 27 29.5" stroke="#1A130C" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="wordmark">Drake<em>'s</em></div>
+        <div class="tag">· Backoffice ·</div>
+      </div>
+    </a>
+
+    <div class="context-switch">
+      <button class="ctx-btn">Creador</button>
+      <button class="ctx-btn active">Interno</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">· Inteligencia ·</div>
+        <a href="drakesbounty-oracle.html" class="nav-item active">
+          <span class="icon">◉</span>
+          El Oráculo
+          <span class="count">1.247</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">◬</span>
+          Watchlists
+          <span class="count">8</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">✦</span>
+          Señales en vivo
+          <span class="nav-badge attention">3</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚑</span>
+          Fuentes
+          <span class="count">22</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Comercial ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">⚔</span>
+          Pipeline
+          <span class="count">84</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">✉</span>
+          Contactos
+          <span class="count">312</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">◈</span>
+          Negociaciones
+          <span class="count">11</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚖</span>
+          Contratos
+          <span class="count">36</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Network ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">★</span>
+          Operadores activos
+          <span class="count">47</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">§</span>
+          Creadores
+          <span class="count">1.842</span>
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">⚖</span>
+          Disputas
+          <span class="nav-badge">2</span>
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">· Interno ·</div>
+        <a href="#" class="nav-item">
+          <span class="icon">⚙</span>
+          Ajustes del Oráculo
+        </a>
+        <a href="#" class="nav-item">
+          <span class="icon">◌</span>
+          Equipo
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">JP</div>
+      <div class="user-info">
+        <div class="user-name">Javier Peña</div>
+        <div class="user-role">Head · BD</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb">
+        <a href="drakesbounty-oracle.html">El Oráculo</a>
+        <span class="sep">/</span>
+        <a href="#">Crypto Casinos</a>
+        <span class="sep">/</span>
+        <span class="current">NovaSpin Casino</span>
+      </div>
+
+      <div class="breadcrumb-actions">
+        <button class="breadcrumb-btn icon-only" title="Anterior">‹</button>
+        <button class="breadcrumb-btn icon-only" title="Siguiente">›</button>
+        <span style="color: var(--ink-ghost); margin: 0 6px;">|</span>
+        <button class="breadcrumb-btn">↗ Abrir web</button>
+        <button class="breadcrumb-btn">⎘ Duplicar ficha</button>
+        <button class="breadcrumb-btn primary">Avanzar estado →</button>
+      </div>
+    </div>
+
+    <!-- ============ PLATFORM HERO ============ -->
+    <div class="platform-hero">
+      <div class="platform-favicon-big">
+        Ns
+        <span class="new-badge">Nueva</span>
+      </div>
+
+      <div class="platform-main">
+        <div class="platform-title-row">
+          <h1 class="platform-title">NovaSpin <em>Casino</em></h1>
+          <span class="vertical-tag cryptocasino">Crypto Casino</span>
+        </div>
+
+        <div class="platform-domain-row">
+          <span class="platform-domain-main">
+            <a href="#">novaspin.io</a>
+            <span class="ext">· dominio principal</span>
+          </span>
+          <div class="additional-domains">
+            <span class="domain-pill">novaspin.games</span>
+            <span class="domain-pill">novaspin.net</span>
+            <span class="domain-pill">+ 2 más</span>
+          </div>
+        </div>
+
+        <p class="platform-meta-line">
+          Casino cripto lanzado a principios de <strong>marzo de 2026</strong> operando desde Curaçao. Crecimiento agresivo en <em>España y LATAM</em>, con foco en slots de alta volatilidad y sportsbook. Programa de afiliados detectado pero <em>cerrado por invitación</em>.
+        </p>
+
+        <div class="parent-nav">
+          <span class="parent-label">§ Empresa matriz</span>
+          <span class="parent-name"><a href="#">NovaSpin Gaming Ltd</a></span>
+          <span class="sister-sep">·</span>
+          <div class="sisters">
+            <a href="#" class="sister-brand" title="Ver marca">
+              <span class="status-dot active"></span>
+              SpinNova
+            </a>
+            <a href="#" class="sister-brand" title="Ver marca">
+              <span class="status-dot none"></span>
+              GalaxyBet
+            </a>
+            <a href="#" class="sister-brand" title="Ver marca">
+              <span class="status-dot neg"></span>
+              NovaSport
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="platform-right">
+        <div class="overall-score">
+          <div class="score-ring-big">
+            <svg viewBox="0 0 36 36">
+              <circle class="bg" cx="18" cy="18" r="15"/>
+              <circle class="fg" cx="18" cy="18" r="15" stroke-dasharray="94.2 94.2" stroke-dashoffset="15"/>
+            </svg>
+            <div class="score-ring-big-val">
+              84
+              <span class="max">/ 100</span>
+            </div>
+          </div>
+          <div class="score-details">
+            <div class="score-detail-row">
+              <span class="score-detail-label">Oportunidad</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill opp" style="width: 92%"></div></div>
+              <span class="score-detail-val">92</span>
+            </div>
+            <div class="score-detail-row">
+              <span class="score-detail-label">Confianza</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill conf" style="width: 88%"></div></div>
+              <span class="score-detail-val">88</span>
+            </div>
+            <div class="score-detail-row">
+              <span class="score-detail-label">Regulatorio</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill reg" style="width: 48%"></div></div>
+              <span class="score-detail-val">48</span>
+            </div>
+            <div class="score-detail-row">
+              <span class="score-detail-label">Urgencia</span>
+              <div class="score-detail-bar"><div class="score-detail-bar-fill urg" style="width: 78%"></div></div>
+              <span class="score-detail-val">78</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-bar">
+          <div class="status-chip-big">Pdte contactar</div>
+          <button class="owner-badge">
+            <span class="avatar-mini">?</span>
+            Asignar owner
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ AI FLAGS BANNER ============ -->
+    <div class="ai-flags">
+      <div class="ai-flag-icon">!</div>
+      <div class="ai-flag-body">
+        <div class="ai-flag-title">El <em>Oráculo</em> te pide mirar esta ficha — <strong>3 cosas</strong> necesitan criterio humano.</div>
+        <div class="ai-flag-desc">
+          Encontré señales contradictorias sobre la <strong>licencia de Curaçao</strong> (no aparece en el registro público), detecto un posible <strong>duplicado con SpinNova</strong> (¿es la misma web con rebrand?), y el <strong>programa de afiliados</strong> parece cerrado pero hay señales de que acepta creadores top.
+        </div>
+        <div class="ai-flag-tags">
+          <span class="ai-flag-tag">Regulación dudosa</span>
+          <span class="ai-flag-tag">Posible duplicado</span>
+          <span class="ai-flag-tag">Contacto clave detectado</span>
+        </div>
+      </div>
+      <div class="ai-flag-actions">
+        <button class="flag-btn secondary">Ignorar</button>
+        <button class="flag-btn primary">Abordar →</button>
+      </div>
+    </div>
+
+    <!-- ============ CONTENT ============ -->
+    <div class="detail-content">
+
+      <!-- ========== MAIN COLUMN ========== -->
+      <section class="main-column">
+
+        <!-- INTELLIGENCE / FACTS -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 01</span>
+              <span>La <em>radiografía</em></span>
+            </h2>
+            <button class="card-action">⎘ Exportar</button>
+          </div>
+
+          <div class="facts-grid">
+            <div class="fact-cell">
+              <div class="fact-key">Lanzamiento</div>
+              <div class="fact-val">Marzo 2026 <span class="small">· 5 semanas</span></div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Entidad legal</div>
+              <div class="fact-val">NovaSpin Gaming Ltd <span class="small">· Curaçao</span></div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Vertical principal</div>
+              <div class="fact-val">Crypto Casino</div>
+              <div class="fact-tags">
+                <span class="fact-mini-tag">Slots</span>
+                <span class="fact-mini-tag">Live dealer</span>
+                <span class="fact-mini-tag">Sportsbook</span>
+              </div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Idiomas</div>
+              <div class="fact-val">ES · PT · EN <span class="inline-flags">🇪🇸 🇵🇹 🇬🇧</span></div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Métodos de pago</div>
+              <div class="fact-val">
+                <span class="monoline">BTC · USDT · ETH · SOL</span>
+              </div>
+              <div class="fact-tags">
+                <span class="fact-mini-tag warn">Sin fiat</span>
+              </div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Programa de afiliados</div>
+              <div class="fact-val">Detectado</div>
+              <div class="fact-tags">
+                <span class="fact-mini-tag warn">Cerrado / por invitación</span>
+                <span class="fact-mini-tag ok">URL visible</span>
+              </div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Proveedor software</div>
+              <div class="fact-val">SoftSwiss <span class="small">· detectado</span></div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Tráfico estimado</div>
+              <div class="fact-val">~<em>180K</em> / mes <span class="small">· SimilarWeb abril</span></div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Última validación</div>
+              <div class="fact-val">hace <em>2h</em> <span class="small">· por el Oráculo</span></div>
+            </div>
+            <div class="fact-cell">
+              <div class="fact-key">Descubierta</div>
+              <div class="fact-val">hace 5 días <span class="small">· via Curaçao Gazette</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LICENSES -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 02</span>
+              <span>Las <em>licencias</em></span>
+            </h2>
+            <button class="card-action">+ Registrar nueva</button>
+          </div>
+
+          <div class="license-list">
+
+            <!-- Doubtful license -->
+            <div class="license-row doubtful">
+              <svg class="license-seal" viewBox="0 0 44 44">
+                <circle cx="22" cy="22" r="19" fill="#A67C2E" stroke="#7A5920" stroke-width="1"/>
+                <circle cx="22" cy="22" r="15" fill="none" stroke="#E8DCC0" stroke-width="0.5" opacity="0.6"/>
+                <text x="22" y="19" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="8" font-weight="600" fill="#E8DCC0">CUR</text>
+                <text x="22" y="28" text-anchor="middle" font-family="JetBrains Mono" font-size="6" font-weight="600" fill="#E8DCC0">GCB</text>
+                <path d="M 14 35 Q 22 32 30 35" stroke="#E8DCC0" stroke-width="0.5" fill="none" opacity="0.6"/>
+              </svg>
+              <div class="license-info">
+                <div class="license-regulator">Curaçao Gaming Control Board</div>
+                <div class="license-number">Nº declarado · OGL/2024/1183/0824 · Master license 365/JAZ</div>
+                <div class="license-meta">
+                  <span class="doubtful">· No aparece en registro público</span>
+                  <span>·</span>
+                  <span>Declarada por operador</span>
+                </div>
+              </div>
+              <div class="license-actions">
+                <button class="license-action-btn">Verificar</button>
+                <button class="license-action-btn">Notas</button>
+              </div>
+            </div>
+
+            <!-- Unverified claim -->
+            <div class="license-row unverified">
+              <svg class="license-seal" viewBox="0 0 44 44">
+                <circle cx="22" cy="22" r="19" fill="#9C8B6F" stroke="#75624C" stroke-width="1" opacity="0.7"/>
+                <text x="22" y="26" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="16" font-weight="600" fill="#E8DCC0" opacity="0.8">?</text>
+              </svg>
+              <div class="license-info">
+                <div class="license-regulator">Menciones a Anjouan (unión de Comoras)</div>
+                <div class="license-number">Solo referencias en footer · sin número verificable</div>
+                <div class="license-meta">
+                  <span>Sin confirmar</span>
+                  <span>·</span>
+                  <span>Baja credibilidad</span>
+                </div>
+              </div>
+              <div class="license-actions">
+                <button class="license-action-btn">Investigar</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- MARKETS -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 03</span>
+              <span>Los <em>mercados</em></span>
+            </h2>
+            <button class="card-action">↗ Ver en mapa</button>
+          </div>
+
+          <div class="markets-grid">
+            <div class="market-card primary">
+              <div class="market-card-flag">🇪🇸</div>
+              <div class="market-card-name">España</div>
+              <div class="market-card-meta">Prim · 48% tráfico</div>
+            </div>
+            <div class="market-card primary">
+              <div class="market-card-flag">🇲🇽</div>
+              <div class="market-card-name">México</div>
+              <div class="market-card-meta">Prim · 22% tráfico</div>
+            </div>
+            <div class="market-card primary">
+              <div class="market-card-flag">🇧🇷</div>
+              <div class="market-card-name">Brasil</div>
+              <div class="market-card-meta">Prim · 14% tráfico</div>
+            </div>
+            <div class="market-card">
+              <div class="market-card-flag">🇦🇷</div>
+              <div class="market-card-name">Argentina</div>
+              <div class="market-card-meta">Sec · 8%</div>
+            </div>
+            <div class="market-card">
+              <div class="market-card-flag">🇨🇱</div>
+              <div class="market-card-name">Chile</div>
+              <div class="market-card-meta">Sec · 3%</div>
+            </div>
+            <div class="market-card">
+              <div class="market-card-flag">🇵🇪</div>
+              <div class="market-card-name">Perú</div>
+              <div class="market-card-meta">Sec · 2%</div>
+            </div>
+            <div class="market-card">
+              <div class="market-card-flag">🇨🇴</div>
+              <div class="market-card-name">Colombia</div>
+              <div class="market-card-meta">Terciario</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 04</span>
+              <span>El <em>timeline</em> de señales</span>
+            </h2>
+            <button class="card-action">Filtrar ↓</button>
+          </div>
+
+          <div class="timeline">
+
+            <div class="timeline-item">
+              <div class="timeline-marker oracle"></div>
+              <div class="timeline-header">
+                <span class="timeline-type oracle">Oráculo</span>
+                <span class="timeline-when">hoy · 14:22</span>
+                <span class="timeline-source">fuente · <strong>SimilarWeb API</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Tráfico mensual <strong>subió +34%</strong> respecto a la semana anterior — llegó a ~180K visitas/mes. El crecimiento en España se aceleró especialmente tras el cambio de creativo en sus campañas de TikTok.
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker warn"></div>
+              <div class="timeline-header">
+                <span class="timeline-type warn">Alerta IA</span>
+                <span class="timeline-when">hoy · 11:08</span>
+                <span class="timeline-source">fuente · <strong>Curaçao Gaming Registry</strong></span>
+              </div>
+              <div class="timeline-desc">
+                El número de licencia declarado <em>OGL/2024/1183/0824</em> <strong>no aparece</strong> en el registro público del regulador. Puede ser un delay de actualización o puede ser una licencia inexistente. <a href="#">Abordar</a>
+              </div>
+              <div class="timeline-attachments">
+                <a href="#" class="timeline-attachment">↗ Captura registro</a>
+                <a href="#" class="timeline-attachment">↗ Declaración footer</a>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker signal"></div>
+              <div class="timeline-header">
+                <span class="timeline-type signal">Señal</span>
+                <span class="timeline-when">ayer · 19:41</span>
+                <span class="timeline-source">fuente · <strong>LinkedIn</strong></span>
+              </div>
+              <div class="timeline-desc">
+                <em>Sara Volkov</em> (Head of Acquisition) actualizó su perfil y mencionó que <strong>"están abriendo el programa de afiliados para creadores seleccionados en LATAM"</strong>. Posible ventana de entrada.
+              </div>
+              <div class="timeline-attachments">
+                <a href="#" class="timeline-attachment">↗ Post original</a>
+                <a href="#" class="timeline-attachment">👤 Perfil de Sara</a>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker change"></div>
+              <div class="timeline-header">
+                <span class="timeline-type change">Cambio</span>
+                <span class="timeline-when">hace 2 días · 10:03</span>
+                <span class="timeline-source">fuente · <strong>WHOIS monitor</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Añadidos 2 dominios nuevos al pool: <strong>novaspin.games</strong> y <strong>novaspin.net</strong>. Ambos redirigen al dominio principal — señal de estrategia anti-bloqueo en mercados restrictivos.
+              </div>
+              <div class="timeline-diff">
+                <div><span class="added">+ novaspin.games</span> — registrado 22 abr 2026 · privacy proxy</div>
+                <div><span class="added">+ novaspin.net</span> — registrado 22 abr 2026 · privacy proxy</div>
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker signal"></div>
+              <div class="timeline-header">
+                <span class="timeline-type signal">Señal</span>
+                <span class="timeline-when">hace 3 días</span>
+                <span class="timeline-source">fuente · <strong>Telegram monitor</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Detectada mención recurrente de NovaSpin en 14 canales de Telegram de slots España — el operador está <strong>pagando influencers activamente</strong>, probablemente con deals directos. Oportunidad de interceptar esos creadores.
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker oracle"></div>
+              <div class="timeline-header">
+                <span class="timeline-type oracle">Oráculo</span>
+                <span class="timeline-when">hace 4 días</span>
+                <span class="timeline-source">fuente · <strong>SoftSwiss footprint</strong></span>
+              </div>
+              <div class="timeline-desc">
+                Identificada stack técnica: <strong>SoftSwiss</strong> como proveedor de casino, <strong>BetConstruct</strong> para sportsbook, integración directa con <strong>Hub88</strong> para agregación de proveedores de slots. Stack similar a 3 operadores ya en el Network.
+              </div>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-marker oracle"></div>
+              <div class="timeline-header">
+                <span class="timeline-type oracle">Oráculo</span>
+                <span class="timeline-when">hace 5 días · 09:18</span>
+                <span class="timeline-source">fuente · <strong>Curaçao Gazette</strong></span>
+              </div>
+              <div class="timeline-desc">
+                <em>Plataforma descubierta</em>. El Oráculo identificó NovaSpin Casino a partir de una mención en el boletín oficial de Curaçao vinculada a una actualización de su master license. Clasificada automáticamente como Crypto Casino con score inicial <strong>72</strong>.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- CONTACTS -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 05</span>
+              <span>Los <em>contactos</em></span>
+            </h2>
+            <button class="card-action">↗ Buscar más</button>
+          </div>
+
+          <div class="contacts-list">
+
+            <!-- Primary contact (freshly detected) -->
+            <div class="contact-row primary">
+              <div class="contact-avatar green">SV</div>
+              <div class="contact-info">
+                <div class="contact-name">
+                  Sara Volkov
+                  <span class="contact-badge">Clave · detectada</span>
+                </div>
+                <div class="contact-role">Head of Acquisition · NovaSpin Gaming Ltd</div>
+                <div class="contact-channels">
+                  <a href="#" class="contact-channel linkedin">
+                    <span class="icon-ch">in</span>
+                    /in/sara-volkov
+                  </a>
+                  <a href="#" class="contact-channel telegram">
+                    <span class="icon-ch">✈</span>
+                    @saravolkov
+                  </a>
+                  <a href="#" class="contact-channel email">
+                    <span class="icon-ch">@</span>
+                    sara@novaspin.io
+                  </a>
+                </div>
+              </div>
+              <div class="contact-lastcontact">
+                <strong>Sin contactar</strong>
+                Nueva · ayer
+              </div>
+              <div>
+                <button class="license-action-btn" style="color: var(--oxblood); border-color: var(--oxblood);">✉ Contactar</button>
+              </div>
+            </div>
+
+            <!-- Secondary contact -->
+            <div class="contact-row">
+              <div class="contact-avatar blue">DM</div>
+              <div class="contact-info">
+                <div class="contact-name">Dmitri Mironov</div>
+                <div class="contact-role">CEO · NovaSpin Gaming Ltd</div>
+                <div class="contact-channels">
+                  <a href="#" class="contact-channel linkedin">
+                    <span class="icon-ch">in</span>
+                    /in/dmitri-mironov
+                  </a>
+                  <a href="#" class="contact-channel email">
+                    <span class="icon-ch">@</span>
+                    d.mironov@novaspin.io
+                  </a>
+                </div>
+              </div>
+              <div class="contact-lastcontact">
+                <strong>Sin contactar</strong>
+                Nuevo
+              </div>
+              <div>
+                <button class="license-action-btn">✉</button>
+              </div>
+            </div>
+
+          </div>
+
+          <button class="add-contact-btn" style="margin-top: 14px;">+ Añadir contacto manualmente</button>
+        </div>
+
+        <!-- NOTES -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <span class="num">§ 06</span>
+              <span>Notas del <em>equipo</em></span>
+            </h2>
+          </div>
+
+          <div class="notes-list">
+            <div class="note-item">
+              <div class="note-header">
+                <div class="note-author-avatar jp">JP</div>
+                <span class="note-author">Javier Peña</span>
+                <span class="note-time">hace 3h</span>
+              </div>
+              <div class="note-text">
+                Me suena el nombre de <em>Dmitri Mironov</em> — creo que lo vi en <strong>SpinNova</strong> hace un año como head de marketing. Si es el mismo tipo, hay relación directa entre NovaSpin y SpinNova. Confirmar.
+              </div>
+            </div>
+
+            <div class="note-item">
+              <div class="note-header">
+                <div class="note-author-avatar mc">MC</div>
+                <span class="note-author">Marta Cárdenas</span>
+                <span class="note-time">hace 1 día</span>
+              </div>
+              <div class="note-text">
+                He cruzado info con <strong>Ana</strong>: dos de nuestros creadores LATAM (nachoslots y reelrider) ya mencionan NovaSpin en sus streams. <em>Están siendo pagados por fuera</em>. Si los firmamos nosotros primero podemos negociar mejores términos.
+              </div>
+            </div>
+          </div>
+
+          <div class="note-composer">
+            <textarea placeholder="Añade una nota interna. Usa @persona para mencionar, #tag para etiquetar."></textarea>
+            <div class="note-composer-footer">
+              <div class="note-hints">Privadas · visibles solo para el equipo</div>
+              <button class="license-action-btn" style="background: var(--ink); color: var(--paper); border-color: var(--ink);">Publicar nota</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========== SIDE COLUMN ========== -->
+      <aside class="side-column">
+
+        <!-- QUICK ACTIONS -->
+        <div class="side-card">
+          <div class="side-card-title">§ Acciones rápidas</div>
+
+          <button class="quick-action primary">
+            <span class="ico">✉</span>
+            Contactar a Sara Volkov
+            <span class="meta">⌘ 1</span>
+          </button>
+
+          <button class="quick-action">
+            <span class="ico">↴</span>
+            Asignarme esta ficha
+            <span class="meta">⌘ A</span>
+          </button>
+
+          <button class="quick-action">
+            <span class="ico">☆</span>
+            Añadir a watchlist
+            <span class="meta">⌘ W</span>
+          </button>
+
+          <button class="quick-action">
+            <span class="ico">⚔</span>
+            Mandar al pipeline
+            <span class="meta">⌘ P</span>
+          </button>
+
+          <button class="quick-action">
+            <span class="ico">⎘</span>
+            Duplicar / fusionar
+          </button>
+
+          <button class="quick-action">
+            <span class="ico" style="color: var(--oxblood);">✕</span>
+            Rechazar plataforma
+          </button>
+        </div>
+
+        <!-- WATCHLIST -->
+        <div class="side-card">
+          <div class="side-card-title">§ Watchlists</div>
+          <div class="watchlist-indicator">
+            <span class="watchlist-icon">★</span>
+            <div class="watchlist-text">
+              Vigilada en <strong>2 watchlists</strong>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-family: var(--display); font-size: 12px; color: var(--ink-dim); font-style: italic; padding: 6px 10px; background: rgba(26,19,12,0.03); border-left: 2px solid var(--oxblood);">
+              Crypto Casinos LATAM emergentes
+            </div>
+            <div style="font-family: var(--display); font-size: 12px; color: var(--ink-dim); font-style: italic; padding: 6px 10px; background: rgba(26,19,12,0.03); border-left: 2px solid var(--brass);">
+              Regulación dudosa · Q2 2026
+            </div>
+          </div>
+        </div>
+
+        <!-- TAGS -->
+        <div class="side-card">
+          <div class="side-card-title">
+            § Etiquetas
+            <button class="tag-add">+ Nueva</button>
+          </div>
+          <div class="tags-list">
+            <span class="tag-item">Alta prioridad <span style="opacity:0.5;">×</span></span>
+            <span class="tag-item">LATAM <span style="opacity:0.5;">×</span></span>
+            <span class="tag-item">Crypto-only <span style="opacity:0.5;">×</span></span>
+            <span class="tag-item">SoftSwiss <span style="opacity:0.5;">×</span></span>
+            <span class="tag-item x">Programa cerrado <span style="opacity:0.5;">×</span></span>
+            <span class="tag-item">Q2 discovery <span style="opacity:0.5;">×</span></span>
+          </div>
+        </div>
+
+        <!-- RELATED PLATFORMS -->
+        <div class="side-card">
+          <div class="side-card-title">§ Relacionadas</div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <a href="#" style="display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--rule); text-decoration: none; background: rgba(26,19,12,0.02); transition: border-color 0.2s;">
+              <div style="width: 26px; height: 26px; background: linear-gradient(135deg, #6b8257, #2f3e25); color: var(--paper); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 12px;">Sn</div>
+              <div>
+                <div style="font-family: var(--display); font-weight: 500; font-size: 12px; color: var(--ink); font-variation-settings: 'opsz' 72;">SpinNova</div>
+                <div style="font-family: var(--mono); font-size: 9px; color: var(--ink-faint); letter-spacing: 0.1em; margin-top: 2px;">hermana · activa</div>
+              </div>
+              <span style="font-family: var(--display); font-style: italic; color: var(--oxblood); font-size: 14px;">→</span>
+            </a>
+
+            <a href="#" style="display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--rule); text-decoration: none; background: rgba(26,19,12,0.02);">
+              <div style="width: 26px; height: 26px; background: linear-gradient(135deg, #762525, #4f1818); color: var(--paper); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 12px;">NS</div>
+              <div>
+                <div style="font-family: var(--display); font-weight: 500; font-size: 12px; color: var(--ink); font-variation-settings: 'opsz' 72;">NovaSport</div>
+                <div style="font-family: var(--mono); font-size: 9px; color: var(--ink-faint); letter-spacing: 0.1em; margin-top: 2px;">hermana · negociando</div>
+              </div>
+              <span style="font-family: var(--display); font-style: italic; color: var(--oxblood); font-size: 14px;">→</span>
+            </a>
+
+            <a href="#" style="display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--rule); text-decoration: none; background: rgba(26,19,12,0.02);">
+              <div style="width: 26px; height: 26px; background: linear-gradient(135deg, #d4be91, #a67c2e); color: var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-weight: 600; font-size: 12px;">Gb</div>
+              <div>
+                <div style="font-family: var(--display); font-weight: 500; font-size: 12px; color: var(--ink); font-variation-settings: 'opsz' 72;">GalaxyBet</div>
+                <div style="font-family: var(--mono); font-size: 9px; color: var(--ink-faint); letter-spacing: 0.1em; margin-top: 2px;">hermana · detectada</div>
+              </div>
+              <span style="font-family: var(--display); font-style: italic; color: var(--oxblood); font-size: 14px;">→</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- SOURCES -->
+        <div class="side-card">
+          <div class="side-card-title">§ Fuentes activas</div>
+          <div>
+            <div class="source-item">
+              <span class="source-dot"></span>
+              <span class="source-name">Curaçao Gazette</span>
+              <span class="source-time">hace 5d</span>
+            </div>
+            <div class="source-item">
+              <span class="source-dot"></span>
+              <span class="source-name">SimilarWeb API</span>
+              <span class="source-time">2h</span>
+            </div>
+            <div class="source-item">
+              <span class="source-dot"></span>
+              <span class="source-name">WHOIS monitor</span>
+              <span class="source-time">2d</span>
+            </div>
+            <div class="source-item">
+              <span class="source-dot"></span>
+              <span class="source-name">LinkedIn</span>
+              <span class="source-time">1d</span>
+            </div>
+            <div class="source-item">
+              <span class="source-dot"></span>
+              <span class="source-name">Telegram monitor</span>
+              <span class="source-time">3d</span>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>
+
+</body>
+</html>
