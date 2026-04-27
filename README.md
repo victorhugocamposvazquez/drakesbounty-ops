@@ -1,6 +1,8 @@
 # drakes-ops
 
-Backoffice interno (**Next.js 16**, App Router). Misma instancia **Supabase** que [drakes-affiliate](https://github.com/) — las migraciones SQL viven solo en ese repo: ver `docs/drakes-affiliate-context.md` y el resumen de ecosistema en `docs/ecosistema-repos.md`.
+Backoffice interno (**Next.js 16**, App Router).
+
+**Vercel: 404 al abrir la URL** — suele ser **Output directory** rellenado por error o **root directory** mal en un monorepo. Guía: [`docs/vercel-404.md`](docs/vercel-404.md). Misma instancia **Supabase** que [drakes-affiliate](https://github.com/) — las migraciones SQL viven solo en ese repo: ver `docs/drakes-affiliate-context.md` y el resumen de ecosistema en `docs/ecosistema-repos.md`.
 
 - Maquetación de referencia: `html-dashboard-ops/drakesbounty-oracle.html` (el runtime es esta app, no el HTML en bruto).
 - Variables: copia la plantilla y rellena **antes** de `npm run dev`:

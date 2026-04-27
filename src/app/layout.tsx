@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: "El Oráculo — Drake's Bounty · Backoffice",
   description: "Backoffice interno Drake's Bounty",
   robots: { index: false, follow: false, nocache: true },
+  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
 };
 
 export default function RootLayout({
