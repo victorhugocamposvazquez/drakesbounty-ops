@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Abre [http://localhost:3000](http://localhost:3000). La ruta `/` es el **Oráculo** (maqueta de referencia). Datos: **`/conversiones`**, **`/payouts`**, **`/operadores`**, **`/creadores`**. Las filas de **`conversions`** las escribe el flujo automático de **drakes-affiliate** (`/api/postback`, etc.); ops comparte BD y sirve para revisar y exportar. RLS: `docs/rls-staff-ops.md`. **Exportar CSV** → `GET /api/export/conversions` (hasta 20k vía `SUPABASE_SERVICE_ROLE_KEY` + sesión staff).
+Abre [http://localhost:3000](http://localhost:3000). La ruta `/` es el **Oráculo** (maqueta + **pulso 7 días**: conteos de conversiones y clics con la sesión; si RLS bloquea, verás aviso). Datos: **`/conversiones`**, **`/clicks`**, **`/bounties`**, **`/payouts`**, **`/operadores`**, **`/creadores`**. Las filas de **`conversions`** las ingiere **drakes-affiliate** (`/api/postback`, etc.); ops comparte BD (revisión / export). RLS: `docs/rls-staff-ops.md`. **Exportar CSV** → `GET /api/export/conversions` (hasta 20k con `SUPABASE_SERVICE_ROLE_KEY` + sesión staff).
 
 **Noindex:** `metadata.robots` + `app/robots.ts` con `disallow: /` para desalentar indexación.
 

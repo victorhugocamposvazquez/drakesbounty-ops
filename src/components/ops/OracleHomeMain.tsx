@@ -1,3 +1,5 @@
+import type { WeekStats } from "@/lib/data/stats";
+import { OracleStatsStrip } from "./OracleStatsStrip";
 import { ContactsGlyph } from "./ContactsGlyph";
 import { SearchIcon } from "./search-icon";
 
@@ -54,7 +56,9 @@ function OracleIcon() {
   );
 }
 
-export function OracleHomeMain() {
+type HomeProps = { weekStats: WeekStats };
+
+export function OracleHomeMain({ weekStats }: HomeProps) {
   return (
     <main className="main">
       <div className="topbar">
@@ -83,6 +87,8 @@ export function OracleHomeMain() {
           </button>
         </div>
       </div>
+
+      <OracleStatsStrip stats={weekStats} />
 
       <div className="oracle-scanning">
         <span className="scanning-dot" />

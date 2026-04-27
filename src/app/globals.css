@@ -186,3 +186,36 @@ table.conversions-table td {
   margin: 0 0 20px;
   max-width: 72ch;
 }
+
+.home-stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(26, 19, 12, 0.02);
+}
+
+.home-stats-eyebrow {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  flex: none;
+}
+
+.home-stats-nums {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.home-stats-issues {
+  width: 100%;
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin: 0;
+  font-style: italic;
+}

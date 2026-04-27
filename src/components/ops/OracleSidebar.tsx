@@ -18,6 +18,8 @@ const nav = [
     label: "· Casa ·",
     items: [
       { href: "/conversiones", icon: "◇", title: "Conversiones" },
+      { href: "/clicks", icon: "⌁", title: "Clics" },
+      { href: "/bounties", icon: "⬢", title: "Bounties" },
       { href: "/payouts", icon: "✧", title: "Payouts" },
     ],
   },
